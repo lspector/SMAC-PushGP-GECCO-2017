@@ -1,0 +1,1 @@
+cite Fast Bayesian Optimization of Machine Learning Hyperparameters on Large Datasets http://arxiv.org/abs/1605.07079
