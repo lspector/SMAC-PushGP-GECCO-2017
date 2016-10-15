@@ -1,0 +1,177 @@
+% This is LLNCS.DEM the demonstration file of
+% the LaTeX macro package from Springer-Verlag
+% for Lecture Notes in Computer Science,
+% version 2.4 for LaTeX2e as of 16. April 2010
+%
+\documentclass{llncs}
+%
+\usepackage{makeidx}  % allows for indexgeneration
+\usepackage{todonotes}
+%
+\begin{document}
+
+\mainmatter              % start of the contributions
+%
+\title{SMAC, PushGP, and parameter (over) optimization}
+%
+%\titlerunning{SMAC, PushGP, and parameter (over) optimization}  % abbreviated title (for running head)
+%                                     also used for the TOC unless
+%                                     \toctitle is used
+%
+
+\todo[inline]{No idea what order we do the authors here. May end up depending on how the paper eventually gets written.}
+
+\todo[inline]{Need to make sure we update the authorrunning and the tocauthor and the institute entries when we figure out who the authors actually are, etc.}
+
+\todo[inline]{I think we'll eventually have to do something about the indexing?}
+
+\author{Nic\inst{1} \and Tom\inst{2} \and Lee\inst{3} \and Whoever Else In Whatever Order Makes Sense}
+%\author{Ivar Ekeland\inst{1} \and Roger Temam\inst{2}
+%Jeffrey Dean \and David Grove \and Craig Chambers \and Kim~B.~Bruce \and
+%Elsa Bertino}
+%
+\authorrunning{Ivar Ekeland et al.} % abbreviated author list (for running head)
+%
+%%%% list of authors for the TOC (use if author list has to be modified)
+\tocauthor{Ivar Ekeland, Roger Temam, Jeffrey Dean, David Grove,
+Craig Chambers, Kim B. Bruce, and Elisa Bertino}
+%
+\institute{University of Minnesota -- Morris, Morris MN 56267, USA, \\
+	\email{mcphee@morris.umn.edu}
+	\and
+	Washington and Lee University, Lexington, VA 24450, USA, \\
+	\email{helmutht@wlu.edu}
+	\and
+	Hampshire College, Amherst, MA 01002, USA, \\
+	\email{lspector@hampshire.edu}
+}
+%\institute{Princeton University, Princeton NJ 08544, USA,\\
+%\email{I.Ekeland@princeton.edu},\\ WWW home page:
+%\texttt{http://users/\homedir iekeland/web/welcome.html}
+%\and
+%Universit\'{e} de Paris-Sud,
+%Laboratoire d'Analyse Num\'{e}rique, B\^{a}timent 425,\\
+%F-91405 Orsay Cedex, France}
+
+\maketitle              % typeset the title of the contribution
+
+\begin{abstract}
+The abstract should summarize the contents of the paper
+using at least 70 and at most 150 words. It will be set in 9-point
+font size and be inset 1.0 cm from the right and left margins.
+There will be two blank lines before and after the Abstract. \dots
+\keywords{computational geometry, graph theory, Hamilton cycles}
+\todo[inline]{need to write an abstract}
+\todo[inline]{Need to sort out keywords}
+\end{abstract}
+
+\section{Indtroduction}
+
+Set up SMAC, what we did with it, and what we learned.
+
+\todo{The following could be moved to Background if we think it makes more
+	sense there.}
+It is important to keep in mind that there is little in this paper that is
+specific to SMAC or its details or, for that matter, Clojush or its details. 
+There are many approaches to parameter
+tuning, and presumably similar results could have been acquired with many of
+them. What matters the most here is that:
+\begin{itemize}
+	\item SMAC was able to discover parameter settings that 
+	\emph{substantially} improved the performance
+	of Clojush on the Replace-space-with-newline problem.
+	\item Applying those optimized parameter settings to a variety of other
+	problems let to very mixed results, suggesting that those parameter
+	settings were very specific to the particular problem used for the SMAC
+	search.
+\end{itemize}
+The fact that SMAC was able to discover settings that improved
+performance on the Replace-space-with-newline problem by such a wide margin
+is quite impressive. The fact that those parameter settings don't appear to
+generalize is in no way the ``fault'' of SMAC, and are likely much more 
+about how we used the tool than any property of the tool itself.
+
+\section{Background}
+
+This is pretty fuzzy to me (Nic). We don't need to say a lot about \emph{how}
+SMAC works, but we do need to talk about \emph{what it does}. Maybe that just
+gets blended into the introduction?
+
+Somewhere we'll presumably need to acknowledge that (a) there's been lots of
+work historically on parameter optimization (e.g., early work on things like
+population sizes and mutation rates in GAs) and (b) SMAC is by no means the
+only tool of its kind out there. It would be great if someone could do some
+lit review on that latter question in particular. (A few early examples would
+be sufficient to make the first point; the latter is more politically charged.)
+
+\section{Tuning parameters for Replace-space-with-newline}
+
+Describe the August work in Morris.
+
+\section{Applying those parameters to other problems}
+
+Describe Tom's subsequent work applying those parameters to 4 other
+problems.
+
+\section{Discussion}
+
+Talk about what we learned and what this means
+
+\section{Future work}
+
+\begin{itemize}
+	\item Use SMAC to tune parameters on the other four problems one at a time, and see how that works on the other problems.
+	\item Use SMAC to tune on (sub)sets of the problems, like all 5, or on subsets that seem similar (or different) based on the individual tuning.
+	\item etc.
+\end{itemize}
+
+\section{Conclusions}
+
+Evolution is complicated!
+
+%
+% ---- Bibliography ----
+%
+\begin{thebibliography}{5}
+%
+\bibitem {clar:eke}
+Clarke, F., Ekeland, I.:
+Nonlinear oscillations and
+boundary-value problems for Hamiltonian systems.
+Arch. Rat. Mech. Anal. 78, 315--333 (1982)
+
+\bibitem {clar:eke:2}
+Clarke, F., Ekeland, I.:
+Solutions p\'{e}riodiques, du
+p\'{e}riode donn\'{e}e, des \'{e}quations hamiltoniennes.
+Note CRAS Paris 287, 1013--1015 (1978)
+
+\bibitem {mich:tar}
+Michalek, R., Tarantello, G.:
+Subharmonic solutions with prescribed minimal
+period for nonautonomous Hamiltonian systems.
+J. Diff. Eq. 72, 28--55 (1988)
+
+\bibitem {tar}
+Tarantello, G.:
+Subharmonic solutions for Hamiltonian
+systems via a $\bbbz_{p}$ pseudoindex theory.
+Annali di Matematica Pura (to appear)
+
+\bibitem {rab}
+Rabinowitz, P.:
+On subharmonic solutions of a Hamiltonian system.
+Comm. Pure Appl. Math. 33, 609--633 (1980)
+
+\end{thebibliography}
+
+\clearpage
+\addtocmark[2]{Author Index} % additional numbered TOC entry
+\renewcommand{\indexname}{Author Index}
+\printindex
+\clearpage
+\addtocmark[2]{Subject Index} % additional numbered TOC entry
+\markboth{Subject Index}{Subject Index}
+\renewcommand{\indexname}{Subject Index}
+\input{subjidx.ind}
+\end{document}
