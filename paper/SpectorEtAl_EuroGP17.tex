@@ -106,10 +106,162 @@ only tool of its kind out there. It would be great if someone could do some
 lit review on that latter question in particular. (A few early examples would
 be sufficient to make the first point; the latter is more politically charged.)
 
-\section{Tuning parameters for Replace-space-with-newline}
+We also need to provide at least a minimal overview of Push/Plush/Clojush so
+we can explain the meaning/action of the the parameters we chose to tune. 
 
-Describe the August work in Morris.
+\section{Tuning parameters for Replace-space-with-newline}
 \label{sec:tuningRSWN}
+
+% Describe the August work in Morris.
+
+\todo{The following is almost certainly overly chatty and historical (vs.
+	scientific), and will probably need to be cleaned up. It's just how
+	I find myself thinking about it, and it seemed better to write *something*
+	than sweat those bullets right now. -- Nic}
+
+After hearing about SMAC at Holger Hoos's keynote at GECCO in July, 2016, we
+decided to see if we could use SMAC to optimize parameters for Clojush, a
+Clojure implementation of PushGP. PushGP is a stack-based genetic programming
+system that has been demonstrably successful on a wide range of software
+synthesis problems~\cite{Helmuth:GECCO:2015}. Like most ``industrial
+strength'' EAs, Clojush has dozens of parameters that need to be set by the
+practicioner, ranging from ``standard'' parameters like the population size
+and the maximum number of generations to more Push-specific parameters\todo{
+	Are these \emph{Push}-specific, or \emph{Plush}-specific? Do we want to
+	get into those weeds? Do we want/need to bring Plush into it at all?}
+such as \emph{alignment deviation} and \emph{uniform close mutation} (described
+in Section~\ref{sec:background} above).\todo{Which means we need to have actually described them up above.}
+
+After some initial work to set SMAC up to work with Clojush, and convince
+ourselves that SMAC was in fact likely to perform some useful parameter
+optimization, we set up three extended SMAC runs, each working independently
+to optimize parameters for the Replace-space-with-newline software synthesis 
+problem.\todo{Do we need to describe RSWN? The other 4? Where? In the Background section?}
+This optimization depended on two important sets of choices:
+\begin{itemize}
+	\item The parameters to be optimized, and over what ranges
+	\item The settings applied to SMAC, such as how long to set it search
+\end{itemize}
+These will be described below, along with the results of that optimization.
+
+\subsection{Parameters optimized}
+\label{sec:parametersOptimized}
+
+Clojush exposes dozens of parameters that could potentially be optimized, but
+adding parameters effectively increases the dimensionality and size of the
+search space SMAC is required to explore. Thus exposing every possible parameter
+seemed unwise, especially in a first experiment with the tool. We chose then
+to focus primarily on parameters that controlled the genetic operators, along
+with the population size and the selection mechanism. The parameters we chose 
+to explore, the ranges SMAC should explore for each parameter, and the 
+default initial values, are all listed in Table~\ref{tab:clojushParameters}.
+In each case the default initial value was the same value used for all the
+experiments in~\cite{Helmuth:GECCO:2015}.
+
+\begin{table}
+	\begin{center}
+	\begin{tabular}{l@{\quad} @{\enskip}l@{\quad} @{\enskip}r@{\quad} @{\enskip}l}
+		Parameter & Range & Default & Modifiers \\
+		\hline
+		Population size & $[1, 30K]$ & 1,000 & integer, log \\
+		% Maximum generations & $[1, 30K]$ & $30,000/\textrm{population size}$ \\
+		Selection method & tournament or & lexicase & categorical \\
+		& \quad lexicase \\
+		\hline
+		Alternation prob. & $[0, 1]$ & 0.2 \\
+		Uniform mutation prob. & $[0, 1]$ & 0.2 \\
+		Uniform close mutation prob. & $[0, 1]$ & 0.1 \\
+		(Alternation, Uniform mutation) prob. & $[0, 1]$ & 0.5 \\
+		\hline
+		Alternation rate & $[0, 1]$ & 0.01 \\
+		Alignment deviation & $[0, 400]$ & 10 & integer \\
+		\hline
+		Uniform mutation rate & $[0, 1]$ & 0.1
+	\end{tabular}
+	\end{center}
+	\caption{Clojush parameters optimized by SMAC for the Replace-space-with-newline problem, along with their ranges, 
+		default values, and modifiers. See Section~\ref{sec:parametersOptimized} for additional details.}
+	\label{tab:clojushParameters}
+\end{table}
+
+\todo{Should ``Maximum generations'' be in the table? It was computed
+		and never actually exposed to SMAC, so it's an odd duck.}
+The first two parameters in Table~\ref{tab:clojushParameters} (population size
+and selection method) are fairly ``generic'' parameters. Population size, 
+however, presented an interesting issue, because while we wanted SMAC to be
+explore the impact of population size, we needed to maintain a consistent
+computational budget; otherwise SMAC would presumably discover the ``obvious''
+fact that it is almost always desirable to provide more computational resources to the underlying Clojush search. We wanted to make the runs comparable to those
+reported in~\cite{Helmuth:GECCO:2015}, all of which used a population size of
+1,000 for 300 generations, meaning that at most 30K individuals were evaluated 
+in the course of a run.\footnote{Clojush runs there, and in this work, 
+	were terminated early when a solution was found, so some runs used
+	considerably less than their full budget of 30K evaluations.} To provide
+a similar constraint here, we allowed SMAC to explore the full range of 
+$[1, 30K]$ for the population size, and computed the maximum number of
+generations as
+\[
+	\left \lfloor{\frac{30,000}{\textrm{population size}}}\right \rfloor
+\]
+This ensures that no Clojush run explored by SMAC would be allowed 
+\emph{more} than 30K individual evaluations, although some choices of 
+population size would be ``penalized'' by being allocated substantially fewer. 
+Any population size over 15K, for example, would get only one generation, which 
+means a population size just over 15K would get just over half the evaluations 
+that a ``full'' run would. Our hope was that SMAC would be able to incorporate
+these impacts in its parameter search without any great difficulty.
+
+We also used the SMAC option of declaring the population size to be an
+integer value (so SMAC wouldn't explore non-integral values for that parameter),
+and we applied SMAC's \emph{log} modifier to the population size parameter.
+The SMAC \emph{log} modifier is used to indicate parameters that naturally
+vary on a logrithmic scale. This means that from SMAC's perspective a change
+in population size from 10 to 100 has the same magnitude as a change from 1,000 to
+10,000. We made the choice on the assumption that while there might be value
+in exploring small changes to small population sizes (e.g., from 10 to 12),
+there was unlikely to be value in exploring small changes for large sizes
+(e.g., from 20,000 to 20,002).
+
+The selection mechanism parameter used SMAC's \emph{categorical} qualifier to
+indicate that it's set of values came from a set of discrete, non-numerical
+options. In this case we allowed SMAC to explore two choices for the selection
+mechanism: traditional tournament selection (with a tournament size of 7) and
+lexicase selection~\cite{lexicase:things}. Earlier 
+work~\cite{Helmuth:GECCO:2015} had shown that lexicase selection was
+significantly more effective than tournament selection, at least with a set of 
+default parameter values that hadn't been particularly tuned for either
+selection mechanism. By letting SMAC explore both selection mechanisms while
+tuning several other parameters, it was possible that SMAC would discover
+that tournament selection might outperform lexicase selection when combined
+with a particular collection of parameter settings.
+
+\todo{Do we want/need this big footnote about normalization and skew?}
+The next four parameters in Table~\ref{tab:clojushParameters} indicate the
+relative likelihood of each of the four genetic operators. These need to sum
+to 1 (since every individual must be created via \emph{some} genetic operator),
+so these were normalized before being passed from SMAC to Clojush by dividing
+each by the sum of the four.\footnote{This arguably inflates the dimensionality of the
+search space for SMAC; from SMAC's perspective these parameters provide four
+degrees of freedom, when in reality there are only three since values for any
+three determine the value of the fourth. The obvious ways of addressing this
+seemed that they might badly skew the search space, however. If, for example,
+we computed the last based on the sum of the first three, most choices for the
+first three would be illegal (they alone would sum to more than 1), and
+proportionally very few would allow for a relatively large value for the
+remaining parameter. So we chose to present SMAC with four apparently 
+independent parameters and normalize.}
+
+The next two parameters in Table~\ref{tab:clojushParameters} (alternation
+rate and alignment deviation) are control the behavior of the alternation
+operator that plays the role of crossover in these runs. It's important to
+note that very large values for alignment deviation make it increasingly
+likely that an alternation event will move \todo{Say something about moving off the front or the back off the other parent, blah, blah.}
+
+\subsection{SMAC settings}
+\label{sec:SMACsettings}
+
+\subsection{SMAC results}
+\label{sec:SMACresultsRSWN}
 
 \section{Applying those parameters to other problems}
 \label{sec:applyingToOtherProblems}
