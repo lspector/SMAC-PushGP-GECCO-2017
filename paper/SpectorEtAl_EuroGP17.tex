@@ -7,6 +7,7 @@
 %
 \usepackage{makeidx}  % allows for indexgeneration
 \usepackage{todonotes}
+\usepackage{booktabs}
 %
 \begin{document}
 
@@ -110,8 +111,50 @@ Describe the August work in Morris.
 
 \section{Applying those parameters to other problems}
 
-Describe Tom's subsequent work applying those parameters to 4 other
-problems.
+These are the parameters I'm using, which are approximately those taken from Nic's SMAC optimizations on RSWN:
+
+\begin{verbatim}
+:uniform-mutation-rate 0.18
+:alignment-deviation 120
+:genetic-operator-probabilities {:alternation 0.04
+                                 :uniform-mutation 0.36
+                                 :uniform-close-mutation 0.06
+                                 [:alternation :uniform-mutation] 0.54}
+\end{verbatim}
+
+All other pushgp parameters are set to default, including population size of 1000.
+
+\begin{table}[t]
+\centering
+\caption{Results with SMAC tuned parameters}
+\label{table:results}
+%\rowcolors{3}{Gray}{white}
+\begin{tabular}{l r r}
+\toprule
+\textbf{Problem} & \textbf{Standard Params} & \textbf{SMAC Params} \tabularnewline
+\midrule
+Double Letters	& 0 & 6 \tabularnewline
+Replace Space with Newline & 54 & 91 \tabularnewline
+String Lengths Backwards & 68 & 75 \tabularnewline
+X-Word Lines & 17 & 3 \tabularnewline
+Syllables & 22 & 17 \tabularnewline
+\bottomrule
+\end{tabular}
+\end{table}
+
+Here's text that I wrote on Sakai:
+
+So far, only the RSWN runs are done. For those, 95/100 runs found successful programs, of which 91 generalized to the unseen test data. I believe @mcphee's setup of SMAC is using success on the training data to guide it. So, even though 95\% is slightly worse than his 98\% result, it is almost as good, and is significantly better than the best result I've ever seen on the problem (59\%, with our previously standard parameters).
+
+Now for the bad news. 80 runs have finished on the Syllables problem, and only 16/80 have found solutions (all of which generalized). If this rate continues, it will be almost equivalent to 22 solutions with our standard settings.
+
+So, I think we're seeing that the improvements SMAC made to parameters when using RSWN don't necessarily translate to more success on other problems. It's still worthwhile to see if those parameters help on a handful of other problems, in case Syllables is simply weird in a different way.
+
+So, the runs for String Lengths Backwards, Syllables, and Double Letters are done with the RSWN SMAC settings. The takeaway: all results are almost identical to runs with our standard settings, and none are significantly different!
+
+So, the settings above area really good at solving RSWN, but don't help at all with a handful of other problems! I don't know what to make of this! :confused: I'm not sure why those settings would be specifically good for RSWN, and no better or worse for other problems. I wonder if there's something about RSWN that makes it susceptible to high mutation rates and high alignment deviation.
+
+At this point, I think it would certainly be interesting to run SMAC on either other single problems or on multiple problems at once (or maybe both).
 
 \section{Discussion}
 
