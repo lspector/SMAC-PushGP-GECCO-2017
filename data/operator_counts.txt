@@ -1,0 +1,4 @@
+Treatment Run Filter Random Uniform.mutation  Uniform.close.mutation  Alternation Alternation.Uniform.Mutation
+SMAC  0 Instruction 2 44 14 18 17
+SMAC  0 None 12 103 176 75 95
+SMAC  0 Gene 2 44 14 18 17
