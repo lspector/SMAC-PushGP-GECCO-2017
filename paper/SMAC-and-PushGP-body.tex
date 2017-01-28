@@ -1,71 +1,3 @@
-% This is LLNCS.DEM the demonstration file of
-% the LaTeX macro package from Springer-Verlag
-% for Lecture Notes in Computer Science,
-% version 2.4 for LaTeX2e as of 16. April 2010
-%
-\documentclass{llncs}
-%
-\usepackage{makeidx}  % allows for indexgeneration
-\usepackage{todonotes}
-\usepackage{booktabs}
-%
-\begin{document}
-
-\mainmatter              % start of the contributions
-%
-\title{SMAC, PushGP, and parameter (over) optimization}
-%
-%\titlerunning{SMAC, PushGP, and parameter (over) optimization}  % abbreviated title (for running head)
-%                                     also used for the TOC unless
-%                                     \toctitle is used
-%
-
-\todo[inline]{No idea what order we do the authors here. May end up depending on how the paper eventually gets written.}
-
-\todo[inline]{Need to make sure we update the authorrunning and the tocauthor and the institute entries when we figure out who the authors actually are, etc.}
-
-\todo[inline]{I think we'll eventually have to do something about the indexing?}
-
-\author{Nic\inst{1} \and Tom\inst{2} \and Lee\inst{3} \and Whoever Else In Whatever Order Makes Sense}
-%\author{Ivar Ekeland\inst{1} \and Roger Temam\inst{2}
-%Jeffrey Dean \and David Grove \and Craig Chambers \and Kim~B.~Bruce \and
-%Elsa Bertino}
-%
-\authorrunning{Ivar Ekeland et al.} % abbreviated author list (for running head)
-%
-%%%% list of authors for the TOC (use if author list has to be modified)
-\tocauthor{Ivar Ekeland, Roger Temam, Jeffrey Dean, David Grove,
-Craig Chambers, Kim B. Bruce, and Elisa Bertino}
-%
-\institute{University of Minnesota -- Morris, Morris MN 56267, USA, \\
-	\email{mcphee@morris.umn.edu}
-	\and
-	Washington and Lee University, Lexington, VA 24450, USA, \\
-	\email{helmutht@wlu.edu}
-	\and
-	Hampshire College, Amherst, MA 01002, USA, \\
-	\email{lspector@hampshire.edu}
-}
-%\institute{Princeton University, Princeton NJ 08544, USA,\\
-%\email{I.Ekeland@princeton.edu},\\ WWW home page:
-%\texttt{http://users/\homedir iekeland/web/welcome.html}
-%\and
-%Universit\'{e} de Paris-Sud,
-%Laboratoire d'Analyse Num\'{e}rique, B\^{a}timent 425,\\
-%F-91405 Orsay Cedex, France}
-
-\maketitle              % typeset the title of the contribution
-
-\begin{abstract}
-The abstract should summarize the contents of the paper
-using at least 70 and at most 150 words. It will be set in 9-point
-font size and be inset 1.0 cm from the right and left margins.
-There will be two blank lines before and after the Abstract. \dots
-\keywords{computational geometry, graph theory, Hamilton cycles}
-\todo[inline]{need to write an abstract}
-\todo[inline]{Need to sort out keywords}
-\end{abstract}
-
 \section{Introduction}
 \label{sec:introduction}
 
@@ -124,7 +56,7 @@ After hearing about SMAC at Holger Hoos's keynote at GECCO in July, 2016, we
 decided to see if we could use SMAC to optimize parameters for Clojush, a
 Clojure implementation of PushGP. PushGP is a stack-based genetic programming
 system that has been demonstrably successful on a wide range of software
-synthesis problems~\cite{Helmuth:GECCO:2015}. Like most ``industrial
+synthesis problems~\cite{Helmuth:2015:GECCO}. Like most ``industrial
 strength'' EAs, Clojush has dozens of parameters that need to be set by the
 practicioner, ranging from ``standard'' parameters like the population size
 and the maximum number of generations to more Push-specific parameters\todo{
@@ -157,7 +89,7 @@ with the population size and the selection mechanism. The parameters we chose
 to explore, the ranges SMAC should explore for each parameter, and the 
 default initial values, are all listed in Table~\ref{tab:clojushParameters}.
 In each case the default initial value was the same value used for all the
-experiments in~\cite{Helmuth:GECCO:2015}.
+experiments in~\cite{Helmuth:2015:GECCO}.
 
 \begin{table}
 	\begin{center}
@@ -193,7 +125,7 @@ however, presented an interesting issue, because while we wanted SMAC to be
 explore the impact of population size, we needed to maintain a consistent
 computational budget; otherwise SMAC would presumably discover the ``obvious''
 fact that it is almost always desirable to provide more computational resources to the underlying Clojush search. We wanted to make the runs comparable to those
-reported in~\cite{Helmuth:GECCO:2015}, all of which used a population size of
+reported in~\cite{Helmuth:2015:GECCO}, all of which used a population size of
 1,000 for 300 generations, meaning that at most 30K individuals were evaluated 
 in the course of a run.\footnote{Clojush runs there, and in this work, 
 	were terminated early when a solution was found, so some runs used
@@ -228,7 +160,7 @@ indicate that it's set of values came from a set of discrete, non-numerical
 options. In this case we allowed SMAC to explore two choices for the selection
 mechanism: traditional tournament selection (with a tournament size of 7) and
 lexicase selection~\cite{lexicase:things}. Earlier 
-work~\cite{Helmuth:GECCO:2015} had shown that lexicase selection was
+work~\cite{Helmuth:2015:GECCO} had shown that lexicase selection was
 significantly more effective than tournament selection, at least with a set of 
 default parameter values that hadn't been particularly tuned for either
 selection mechanism. By letting SMAC explore both selection mechanisms while
@@ -331,49 +263,3 @@ Talk about what we learned and what this means
 
 Evolution is complicated!
 
-%
-% ---- Bibliography ----
-%
-\begin{thebibliography}{5}
-%
-\bibitem {clar:eke}
-Clarke, F., Ekeland, I.:
-Nonlinear oscillations and
-boundary-value problems for Hamiltonian systems.
-Arch. Rat. Mech. Anal. 78, 315--333 (1982)
-
-\bibitem {clar:eke:2}
-Clarke, F., Ekeland, I.:
-Solutions p\'{e}riodiques, du
-p\'{e}riode donn\'{e}e, des \'{e}quations hamiltoniennes.
-Note CRAS Paris 287, 1013--1015 (1978)
-
-\bibitem {mich:tar}
-Michalek, R., Tarantello, G.:
-Subharmonic solutions with prescribed minimal
-period for nonautonomous Hamiltonian systems.
-J. Diff. Eq. 72, 28--55 (1988)
-
-\bibitem {tar}
-Tarantello, G.:
-Subharmonic solutions for Hamiltonian
-systems via a $\bbbz_{p}$ pseudoindex theory.
-Annali di Matematica Pura (to appear)
-
-\bibitem {rab}
-Rabinowitz, P.:
-On subharmonic solutions of a Hamiltonian system.
-Comm. Pure Appl. Math. 33, 609--633 (1980)
-
-\end{thebibliography}
-
-\clearpage
-\addtocmark[2]{Author Index} % additional numbered TOC entry
-\renewcommand{\indexname}{Author Index}
-\printindex
-\clearpage
-\addtocmark[2]{Subject Index} % additional numbered TOC entry
-\markboth{Subject Index}{Subject Index}
-\renewcommand{\indexname}{Subject Index}
-\input{subjidx.ind}
-\end{document}
