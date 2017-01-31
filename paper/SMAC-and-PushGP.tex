@@ -37,7 +37,7 @@
 
 
 \begin{document}
-\title{SMAC, PushGP, and parameter (over) optimization}
+\title{Using SMAC to (over) optimize parameters for PushGP}
 \subtitle{Do we want a sub-title? I bet we can improve on this title.}
 
 \author{Nicholas Freitag McPhee}
@@ -73,22 +73,27 @@
 \email{lspector@hampshire.edu}
 
 \begin{abstract}
-	The Sequential Model-based Algorithm Configuration (SMAC) system is a
-	flexible tool for optimizing algorithm parameters, using repeated runs
+	Sequential Model-based Algorithm Configuration (SMAC) is a
+	tool for optimizing algorithm parameters, using repeated runs
 	of the target algorithm with different parameter values to estimate
-	the response surface relating those parameters and the performance
-	value being optimized. Here we show that SMAC can be used to optimize
-	a group of PushGP parameters for a particular software synthesis problem,
-	leading to marked improvements in the success rate and the speed with which
-	a solution is found. When we apply these new ``tuned'' parameters to four
-	additional problems, we find that they provide no benefit on three, and
-	substantially reduce performance on the last. This suggests that SMAC 
-	is essentially ``overfitting'', tuning the parameters in ways that are 
-	highly problem specific, and certainly raises doubts about the value of
-	using these ``tuned'' parameters on new, previously unsolved problems.
-	These results come from applying SMAC to a single problem, however, and it
-	is possible to have SMAC optimize parameters over a suite target problems;
-	we haven't yet explored this option.
+	the relationship between parameters and performance. 
+	Here we use SMAC to optimize
+	a group of parameters for PushGP, a stack-based genetic programming
+	system, for
+	several software synthesis problems. Applying
+	SMAC to one particular problem leads
+	to marked improvements in the success rate and the speed with which
+	a solution was found for that problem. Applying these ``tuned'' 
+	parameters to four
+	additional problems, however, provided no benefit on three, and
+	substantially reduced performance on the last. This suggests that SMAC 
+	is ``overfitting'', tuning the parameters in ways that are 
+	highly problem specific, and raises doubts about the value of
+	using these ``tuned'' parameters on  previously unsolved problems.
+	Efforts to use SMAC to optimize PushGP parameters on other problems
+	have been less successful due to a combination of long PushGP run times
+	and low success rates, which make it hard for SMAC to acquire enough
+	signal in a reasonable amount of time.
 	
 	\todo[inline]{We need to do the CCS Concepts thing.}
 	\todo[inline]{We need to do the keywords.}
