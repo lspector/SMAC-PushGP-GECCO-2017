@@ -28,6 +28,12 @@ about how we used the tool than any property of the tool itself.
 \section{Background}
 \label{sec:background}
 
+\begin{itemize}
+	\item The citation the SMAC people ask us to use is~\cite{HutHooLey11-SMAC}.
+	\item We should also probably cite their GECCO 2013 
+	paper~\cite{hutter2013evaluation} as a prior example of using this in EC.
+\end{itemize}
+
 This is pretty fuzzy to me (Nic). We don't need to say a lot about \emph{how}
 SMAC works, but we do need to talk about \emph{what it does}. Maybe that just
 gets blended into the introduction?
@@ -248,6 +254,11 @@ At this point, I think it would certainly be interesting to run SMAC on either o
 \label{sec:discussion}
 
 Talk about what we learned and what this means
+
+A piece from @thelmuth at Discourse that we might want to use:
+\begin{quote}
+	Here's a simpler version of my first explanation: alternation makes viable children more often, so you need less of it per event that you want to be successful. Uniform mutation makes viable children less often, so you need more of it per event that you want to be successful. Uniform close mutation makes viable children the most often, so you need least of it per event you want to be successful. Then, in the ancestors of the solution, you get the percents of the events you want to be successful, not the percent of the events you have in total.
+\end{quote}
 
 \section{Future work}
 \label{sec:futureWork}
