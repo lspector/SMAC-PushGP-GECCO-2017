@@ -50,6 +50,7 @@ Standard 8 LastGen 0 182 105 198 515
 Standard 3 Ancestry 16 7239 2998 4008 7790
 Standard 3 Gene 9 563 256 270 435
 Standard 3 Instruction 10 580 266 278 456
+Standard 3 LastGen 0 204 85 182 529
 Standard 4 Ancestry 17 9570 4848 6751 13889
 Standard 4 Gene 2 421 196 261 532
 Standard 4 Instruction 2 438 207 275 556
