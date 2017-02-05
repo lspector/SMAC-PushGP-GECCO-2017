@@ -199,8 +199,46 @@ likely that an alternation event will move \todo{Say something about moving off 
 \subsection{SMAC settings}
 \label{sec:SMACsettings}
 
-\subsection{SMAC results}
+\subsection{SMAC results on RSWN}
 \label{sec:SMACresultsRSWN}
+
+\todo{Document that solutions are found more often, and faster.}
+
+To test the effect of the SMAC ``tuned'' parameters, we performed 110
+independent runs of the Replace-space-with-newline (RSWN) problem using the
+SMAC parameters, as well as 110 independent runs of RSWN using the
+Standard parameters.
+
+As one might expect, using the parameters SMAC ``tuned'' for the
+Replace-space-with-newline problem led to a 
+substantial increase in the proportion of successful runs. 59 of 
+the 110 Standard runs succeeded, or a success rate of 54\%, while 104 of the
+100 SMAC runs succeeded, or a success rate of 95\%.\footnote{A $\chi^2$ test of 
+proportions yields a $p$-value of $1.2 \times 10^{-11}$, so (not surprisingly)
+these differences are statistically significant.}
+
+\begin{figure}
+	\includegraphics[width=3in]{../figures/successGenerations}
+	\caption{Cumulative success counts over time for both the Standard
+	and the SMAC parameter settings.}
+	\label{fig:successGenerations}
+\end{figure}
+
+As Figure~\ref{fig:successGenerations} illustrates, the runs using the SMAC
+parameter configuration also discovered solutions much earlier than runs using
+the Standard parameters. By generation 100, for example, 90 of the 110 SMAC 
+runs (or 87\%) had succeeded, where only 41 of the 110 Standard runs 
+(or 37\%) had succeeded. All the pairwise (by generation) differences 
+between SMAC and Standard cumulative counts in 
+Figure~\ref{fig:successGenerations} are 
+statistically significant ($p<0.015$)
+from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions 
+	with the Holm correction for the 300 separate comparisons.}
+
+\subsection{Impact of SMAC parameters on RSWN}
+\label{sec:SMACimpactRSWN}
+
+\todo{Document impact on distribution of operators in ancestry graphs.}
 
 \section{Applying those parameters to other problems}
 \label{sec:applyingToOtherProblems}
