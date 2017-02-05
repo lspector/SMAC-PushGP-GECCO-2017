@@ -1,0 +1,77 @@
+---
+title: "Run lengths"
+author: "Nic McPhee"
+date: "2/3/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(readr)
+library(plyr)
+```
+
+## Run lengths
+
+This compares the number of generations in runs using both the SMAC and "standard"
+parameters on the replace-space-with-newline (RSWN) problem, both across all
+runs and when limited to successful runs.
+
+```{r}
+run_lengths <- read_delim("run_lengths.txt", " ", escape_double = FALSE, trim_ws = TRUE)
+
+successful_runs = subset(run_lengths, Success==TRUE)
+```
+
+## Make boxplots
+
+Boxplot of run length across all runs, successful or not:
+
+```{r echo=FALSE}
+ggplot(run_lengths, aes(x=Treatment, y=Num.generations)) + geom_boxplot() + theme_bw()
+```
+
+Boxplot of run lengths limited just to successful runs:
+
+```{r echo=FALSE}
+ggplot(successful_runs, aes(x=Treatment, y=Num.generations)) + geom_boxplot() + theme_bw()
+```
+
+## Wilcoxon tests
+
+Testing for significant difference in run length across all runs, regardless 
+of whether they succeeded:
+
+```{r}
+wilcox.test(Num.generations ~ Treatment, data=run_lengths)
+```
+```{r}
+wilcox.test(Num.generations ~ Treatment, data=successful_runs)
+```
+
+## Plot the cumulative success rates
+
+```{r echo=FALSE}
+successful_runs <- ddply(successful_runs, .(Treatment), 
+                         transform, len=length(Num.generations))
+
+ggplot(successful_runs, aes(x=Num.generations, color=Treatment))+ geom_step(aes(len=len, y = ..y.. * len), stat="ecdf") + theme_bw() + theme(legend.position = "top") + labs(x="Generation", y="Number successes")
+```
+
+## Computing statistical significance of success counts
+
+Compute the cumulative success counts and the $p$-values of the differences between
+corresponding pairs of successes counts, with the default (Holm) adjustment.
+
+```{r}
+rl_ps = data.frame(Generation=integer(), "p-value"=double())
+for (g in unique(run_lengths$Num.generations)) {
+  smac = nrow(subset(run_lengths, Success == TRUE & Num.generations < g & Treatment == "SMAC"))
+  standard = nrow(subset(run_lengths, Success == TRUE & Num.generations < g & Treatment == "Standard"))
+  new_row = data.frame(Generation=g, "p-value"=prop.test(c(smac, standard), c(110, 110))$p.value)
+  rl_ps <- rbind(rl_ps, new_row)
+}
+rl_ps <- rl_ps[order(rl_ps$Generation),]
+rl_ps$adjusted.p <- p.adjust(rl_ps$p.value)
+```

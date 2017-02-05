@@ -1,0 +1,84 @@
+---
+title: "SMAC RSWN operator frequencies"
+author: "Nic McPhee"
+date: "1/28/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load, extend, and reshape the data
+
+```{r}
+library(readr)
+library(tidyr)
+operator_counts <- read_delim("~/Documents/Research/SMAC-PushGP-EuroGP-2017/data/operator_counts.txt", " ", escape_double = FALSE, trim_ws = TRUE)
+
+# Compute the total number of "children" in this ancestry tree.
+
+operator_counts$Total = operator_counts$Random + operator_counts$Uniform.mutation + operator_counts$Uniform.close.mutation + operator_counts$Alternation + operator_counts$Alternation.Uniform.Mutation
+
+# Reshape the data into the "long" form
+
+long_counts <- gather(operator_counts, Operator, Count, Random:Alternation.Uniform.Mutation, factor_key=TRUE)
+
+# Add proportions
+
+long_counts$Proportion = long_counts$Count / long_counts$Total
+
+long_counts$Treatment <- factor(long_counts$Treatment)
+
+# Remove the "Genes" filter because that just clutters things
+
+long_counts <- subset(long_counts, Filter != "Gene")
+
+long_counts$Filter <- factor(long_counts$Filter, levels = c("Ancestry", "Instruction", "LastGen"), ordered=TRUE)
+```
+
+## Plot the proportions
+
+```{r}
+library(ggplot2)
+
+# '{:alternation 0.04 :uniform-mutation 0.36 :uniform-close-mutation 0.06 [:alternation :uniform-mutation] 0.54}'
+
+smac_settings <- data.frame(
+  Operator = c("Random", "Uniform.mutation", "Uniform.close.mutation", "Alternation", "Alternation.Uniform.Mutation"),
+  Proportion = c(NA, 0.36, 0.06, 0.04, 0.54)
+)
+smac_settings$Treatment = "SMAC"
+
+# {:alternation 0.2 :uniform-mutation 0.2 :uniform-close-mutation 0.1 [:alternation :uniform-mutation] 0.5 }
+
+standard_settings <- data.frame(
+  Operator = c("Random", "Uniform.mutation", "Uniform.close.mutation", "Alternation", "Alternation.Uniform.Mutation"),
+  Proportion = c(NA, 0.2, 0.1, 0.2, 0.5)
+)
+standard_settings$Treatment = "Standard"
+
+run_settings = rbind(standard_settings, smac_settings);
+
+ggplot(long_counts, aes(x=Filter, y=Proportion, color=Treatment)) + geom_boxplot() + facet_grid(. ~ Operator) + geom_hline(aes(yintercept = Proportion, color=Treatment), run_settings) + theme_bw() + theme(axis.text.x=element_text(angle=30, hjust=1))
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+#summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+#plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
