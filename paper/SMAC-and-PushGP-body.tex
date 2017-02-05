@@ -238,6 +238,41 @@ from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions
 
 \todo{Document impact on distribution of operators in ancestry graphs.}
 
+A key change from the Standard parameter settings to the SMAC parameters
+are the changes in the genetic operator probabilities, as outlined in
+Table~\ref{table:results}. A question this then raises is how these changes
+actually impact the dynamics of the resulting runs, and in particular if and
+how they affect the likelihood of a given genetic operator playing a key
+role in the ultimate discovery of a solution.
+
+\begin{figure*}
+	\includegraphics[width=6in]{../figures/log1_filter_by_genes_vanilla}
+	\caption{Ancestry graph of a successful Replace-space-by-newline run
+	using the ``tuned'' parameters discovered by SMAC. This tree is filtered 
+	to only include individuals that ultimately passed a gene
+	on to the winning individual.}
+	\label{fig:log1ByGenes}
+\end{figure*}
+
+To address this question, we did 10 runs of Replace-space-with-newline (RSWN) 
+using the Standard parameters and 10 using the SMAC parameters, 
+collecting highly detailed records of parent-child relationships 
+among individuals, as well as information on which genomes in the Plush 
+genomes of parents were copied into
+the genomes of their children. This allowed us to compute full ancestry
+graphs for 
+runs~\cite{McPhee:2016:VGP:2908961.2931741,McPhee:2015:GPTP,McPhee:2016:GPTP},
+tracing back from the ``winning'' individuals (programs that have zero error)
+to discover all their ancestors. Figure~\ref{fig:log1ByGenes}, for example,
+shows the ancestry graph for one successful RSWN run using the SMAC parameters.
+\todo{We should replace this graph with one with a more sensible shaping (e.g., width proportional to the number of genes passed to the child). We may also
+want to have two graphs, one filtered and one not filtered to illustrate those
+two approaches.}
+
+\todo{Explain that we collected operator counts in the three different subsets
+	of the entire collection of individuals, and then plot those, and then
+	try to make some sense of the plot.}
+
 \section{Applying those parameters to other problems}
 \label{sec:applyingToOtherProblems}
 
