@@ -212,10 +212,10 @@ Standard parameters.
 As one might expect, using the parameters SMAC ``tuned'' for the
 Replace-space-with-newline problem led to a 
 substantial increase in the proportion of successful runs. 59 of 
-the 110 Standard runs succeeded, or a success rate of 54\%, where 104 of the
-100 SMAC runs succeeded, or a success rate of 95\%. A $\chi^2$ test of 
+the 110 Standard runs succeeded, or a success rate of 54\%, while 104 of the
+100 SMAC runs succeeded, or a success rate of 95\%.\footnote{A $\chi^2$ test of 
 proportions yields a $p$-value of $1.2 \times 10^{-11}$, so (not surprisingly)
-these differences are statistically significant.
+these differences are statistically significant.}
 
 \begin{figure}
 	\includegraphics[width=3in]{../figures/successGenerations}
@@ -229,10 +229,11 @@ parameter configuration also discovered solutions much earlier than runs using
 the Standard parameters. By generation 100, for example, 90 of the 110 SMAC 
 runs (or 87\%) had succeeded, where only 41 of the 110 Standard runs 
 (or 37\%) had succeeded. All the pairwise (by generation) differences 
-between SMAC and Standard in Figure~\ref{fig:successGenerations} are 
+between SMAC and Standard cumulative counts in 
+Figure~\ref{fig:successGenerations} are 
 statistically significant ($p<0.015$)
-starting at generation 29, using the Holm correction for the large number of
-comparisons.
+from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions 
+	with the Holm correction for the 300 separate comparisons.}
 
 \subsection{Impact of SMAC parameters on RSWN}
 \label{sec:SMACimpactRSWN}
