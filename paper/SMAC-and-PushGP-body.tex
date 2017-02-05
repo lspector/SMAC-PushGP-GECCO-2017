@@ -217,7 +217,22 @@ the 110 Standard runs succeeded, or a success rate of 54\%, where 104 of the
 proportions yields a $p$-value of $1.2 \times 10^{-11}$, so (not surprisingly)
 these differences are statistically significant.
 
+\begin{figure}
+	\includegraphics[width=3in]{../figures/successGenerations}
+	\caption{Cumulative success counts over time for both the Standard
+	and the SMAC parameter settings.}
+	\label{fig:successGenerations}
+\end{figure}
 
+As Figure~\ref{fig:successGenerations} illustrates, the runs using the SMAC
+parameter configuration also discovered solutions much earlier than runs using
+the Standard parameters. By generation 100, for example, 90 of the 110 SMAC 
+runs (or 87\%) had succeeded, where only 41 of the 110 Standard runs 
+(or 37\%) had succeeded. All the pairwise (by generation) differences 
+between SMAC and Standard in Figure~\ref{fig:successGenerations} are 
+statistically significant ($p<0.015$)
+starting at generation 29, using the Holm correction for the large number of
+comparisons.
 
 \subsection{Impact of SMAC parameters on RSWN}
 \label{sec:SMACimpactRSWN}

@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(readr)
+library(plyr)
 ```
 
 ## Run lengths
@@ -47,6 +49,20 @@ wilcox.test(Num.generations ~ Treatment, data=run_lengths)
 ```{r}
 wilcox.test(Num.generations ~ Treatment, data=successful_runs)
 ```
+
+## Plot the cumulative success rates
+
+```{r echo=FALSE}
+successful_runs <- ddply(successful_runs, .(Treatment), 
+                         transform, len=length(Num.generations))
+
+ggplot(successful_runs, aes(x=Num.generations, color=Treatment))+ geom_step(aes(len=len, y = ..y.. * len), stat="ecdf") + theme_bw() + theme(legend.position = "top") + labs(x="Generation", y="Number successes")
+```
+
+## Computing statistical significance of success counts
+
+Compute the cumulative success counts and the $p$-values of the differences between
+corresponding pairs of successes counts, with the default (Holm) adjustment.
 
 ```{r}
 rl_ps = data.frame(Generation=integer(), "p-value"=double())
