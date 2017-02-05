@@ -13,14 +13,14 @@ them. What matters the most here is that:
 \begin{itemize}
 	\item SMAC was able to discover parameter settings that 
 	\emph{substantially} improved the performance
-	of Clojush on the Replace-space-with-newline problem.
+	of Clojush on the Replace Space With Newline problem.
 	\item Applying those optimized parameter settings to a variety of other
 	problems let to very mixed results, suggesting that those parameter
 	settings were very specific to the particular problem used for the SMAC
 	search.
 \end{itemize}
 The fact that SMAC was able to discover settings that improved
-performance on the Replace-space-with-newline problem by such a wide margin
+performance on the Replace Space With Newline problem by such a wide margin
 is quite impressive. The fact that those parameter settings don't appear to
 generalize is in no way the ``fault'' of SMAC, and are likely much more 
 about how we used the tool than any property of the tool itself.
@@ -48,7 +48,7 @@ be sufficient to make the first point; the latter is more politically charged.)
 We also need to provide at least a minimal overview of Push/Plush/Clojush so
 we can explain the meaning/action of the the parameters we chose to tune. 
 
-\section{Tuning parameters for Replace-space-with-newline}
+\section{Tuning parameters for Replace~Space With Newline}
 \label{sec:tuningRSWN}
 
 % Describe the August work in Morris.
@@ -74,7 +74,7 @@ in Section~\ref{sec:background} above).\todo{Which means we need to have actuall
 After some initial work to set SMAC up to work with Clojush, and convince
 ourselves that SMAC was in fact likely to perform some useful parameter
 optimization, we set up three extended SMAC runs, each working independently
-to optimize parameters for the Replace-space-with-newline software synthesis 
+to optimize parameters for the Replace Space With Newline software synthesis 
 problem.\todo{Do we need to describe RSWN? The other 4? Where? In the Background section?}
 This optimization depended on two important sets of choices:
 \begin{itemize}
@@ -118,7 +118,7 @@ experiments in~\cite{Helmuth:2015:GECCO}.
 		Uniform mutation rate & $[0, 1]$ & 0.1
 	\end{tabular}
 	\end{center}
-	\caption{Clojush parameters optimized by SMAC for the Replace-space-with-newline problem, along with their ranges, 
+	\caption{Clojush parameters optimized by SMAC for the Replace Space With Newline problem, along with their ranges, 
 		default values, and modifiers. See Section~\ref{sec:parametersOptimized} for additional details.}
 	\label{tab:clojushParameters}
 \end{table}
@@ -199,16 +199,16 @@ likely that an alternation event will move \todo{Say something about moving off 
 \subsection{SMAC settings}
 \label{sec:SMACsettings}
 
-\subsection{SMAC results on RSWN}
+\subsection{SMAC success results on RSWN}
 \label{sec:SMACresultsRSWN}
 
 To test the effect of the SMAC ``tuned'' parameters, we performed 110
-independent runs of the Replace-space-with-newline (RSWN) problem using the
+independent runs of the Replace Space With Newline (RSWN) problem using the
 SMAC parameters, as well as 110 independent runs of RSWN using the
 Standard parameters.
 
 As one might expect, using the parameters SMAC ``tuned'' for the
-Replace-space-with-newline problem led to a 
+Replace Space With Newline problem led to a 
 substantial increase in the proportion of successful runs. 59 of 
 the 110 Standard runs succeeded, or a success rate of 54\%, while 104 of the
 100 SMAC runs succeeded, or a success rate of 95\%.\footnote{A $\chi^2$ test of 
@@ -247,14 +247,14 @@ role in the ultimate discovery of a solution.
 
 \begin{figure*}
 	\includegraphics[width=6in]{../figures/log1_filter_by_genes_vanilla}
-	\caption{Ancestry graph of a successful Replace-space-by-newline run
+	\caption{Ancestry graph of a successful Replace Space By Newline run
 	using the ``tuned'' parameters discovered by SMAC. This tree is filtered 
 	to only include individuals that ultimately passed a gene
 	on to the winning individual.}
 	\label{fig:log1ByGenes}
 \end{figure*}
 
-To address this question, we did 10 runs of Replace-space-with-newline (RSWN) 
+To address this question, we did 10 runs of Replace Space With Newline (RSWN) 
 using the Standard parameters and 10 using the SMAC parameters, 
 collecting highly detailed records of parent-child relationships 
 among individuals, as well as information on which genes in the Plush 
