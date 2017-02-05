@@ -240,53 +240,118 @@ from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions
 
 \todo{Document impact on distribution of operators in ancestry graphs.}
 
+To test the effect of the SMAC ``tuned'' parameters, we performed 110
+independent runs of the Replace Space With Newline (RSWN) problem using the
+SMAC parameters, as well as 110 independent runs of RSWN using the
+Standard parameters.
+
+As one might expect, using the parameters SMAC ``tuned'' for the
+Replace-space-with-newline problem led to a 
+substantial increase in the proportion of successful runs. 59 of 
+the 110 Standard runs succeeded, or a success rate of 54\%, while 104 of the
+100 SMAC runs succeeded, or a success rate of 95\%.\footnote{A $\chi^2$ test of 
+proportions yields a $p$-value of $1.2 \times 10^{-11}$, so (not surprisingly)
+these differences are statistically significant.}
+
+\begin{figure}
+	\includegraphics[width=3in]{../figures/successGenerations}
+	\caption{Cumulative success counts over time for both the Standard
+	and the SMAC parameter settings.}
+	\label{fig:successGenerations}
+\end{figure}
+
+As Figure~\ref{fig:successGenerations} illustrates, the runs using the SMAC
+parameter configuration also discovered solutions much earlier than runs using
+the Standard parameters. By generation 100, for example, 90 of the 110 SMAC 
+runs (or 87\%) had succeeded, where only 41 of the 110 Standard runs 
+(or 37\%) had succeeded. All the pairwise (by generation) differences 
+between SMAC and Standard cumulative counts in 
+Figure~\ref{fig:successGenerations} are 
+statistically significant ($p<0.015$)
+from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions 
+	with the Holm correction for the 300 separate comparisons.}
+
+\subsection{Impact of SMAC parameters on RSWN}
+\label{sec:SMACimpactRSWN}
+
+\todo{Document impact on distribution of operators in ancestry graphs.}
+
+A key change from the Standard parameter settings to the SMAC parameters
+are the changes in the genetic operator probabilities, as outlined in
+Table~\ref{table:results}. A question this then raises is how these changes
+actually impact the dynamics of the resulting runs, and in particular if and
+how they affect the likelihood of a given genetic operator playing a key
+role in the ultimate discovery of a solution.
+
+\begin{figure*}
+	\includegraphics[width=6in]{../figures/log1_filter_by_genes_vanilla}
+	\caption{Ancestry graph of a successful Replace-space-by-newline run
+	using the ``tuned'' parameters discovered by SMAC. This tree is filtered 
+	to only include individuals that ultimately passed a gene
+	on to the winning individual.}
+	\label{fig:log1ByGenes}
+\end{figure*}
+
+To address this question, we did 10 runs of Replace-space-with-newline (RSWN) 
+using the Standard parameters and 10 using the SMAC parameters, 
+collecting highly detailed records of parent-child relationships 
+among individuals, as well as information on which genes in the Plush 
+genomes of parents were copied into
+the genomes of their children. This allowed us to compute full ancestry
+graphs for 
+runs~\cite{McPhee:2016:VGP:2908961.2931741,McPhee:2015:GPTP,McPhee:2016:GPTP},
+tracing back from the ``winning'' individuals (programs that have zero error)
+to discover all their ancestors. Figure~\ref{fig:log1ByGenes}, for example,
+shows the ancestry graph for one successful RSWN run using the SMAC parameters.
+\todo{We should replace this graph with one with a more sensible shaping (e.g., width proportional to the number of genes passed to the child). We may also
+want to have two graphs, one filtered and one not filtered to illustrate those
+two approaches.}
+
+\todo{Explain that we collected operator counts in the three different subsets
+	of the entire collection of individuals, and then plot those, and then
+	try to make some sense of the plot.}
+
 \section{Applying those parameters to other problems}
 \label{sec:applyingToOtherProblems}
 
-These are the parameters I'm using, which are approximately those taken from Nic's SMAC optimizations on RSWN:
-
-\begin{verbatim}
-:uniform-mutation-rate 0.18
-:alignment-deviation 120
-:genetic-operator-probabilities {:alternation 0.04
-                                 :uniform-mutation 0.36
-                                 :uniform-close-mutation 0.06
-                                 [:alternation :uniform-mutation] 0.54}
-\end{verbatim}
-
-All other pushgp parameters are set to default, including population size of 1000.
+%These are the parameters I'm using, which are approximately those taken from Nic's SMAC optimizations on RSWN:
+%
+%\begin{verbatim}
+%:uniform-mutation-rate 0.18
+%:alignment-deviation 120
+%:genetic-operator-probabilities {:alternation 0.04
+%                                 :uniform-mutation 0.36
+%                                 :uniform-close-mutation 0.06
+%                                 [:alternation :uniform-mutation] 0.54}
+%\end{verbatim}
+%
+%All other pushgp parameters are set to default, including population size of 1000.
 
 \begin{table}[t]
 \centering
-\caption{Results with SMAC tuned parameters}
+\caption{Number of successful programs out of 100 runs with standard parameters (those in the ``Default'' column of Table~\ref{tab:clojushParameters}), and with the parameters that SMAC found when run on RSWN.}
 \label{table:results}
 %\rowcolors{3}{Gray}{white}
 \begin{tabular}{l r r}
 \toprule
-\textbf{Problem} & \textbf{Standard Params} & \textbf{SMAC Params} \tabularnewline
+\textbf{Problem} & \textbf{Standard} & \textbf{SMAC} \tabularnewline
 \midrule
+\textit{Replace Space with Newline} & \textit{54} & \textit{91} \tabularnewline
 Double Letters	& 0 & 6 \tabularnewline
-Replace Space with Newline & 54 & 91 \tabularnewline
 String Lengths Backwards & 68 & 75 \tabularnewline
-X-Word Lines & 17 & 3 \tabularnewline
 Syllables & 22 & 17 \tabularnewline
+X-Word Lines & 17 & 3 \tabularnewline
 \bottomrule
 \end{tabular}
 \end{table}
 
-Here's text that I wrote on Sakai:
+One of the hopes of using SMAC is that parameters found when optimizing one problem might be transferable to other problems with similar requirements. To test whether the parameters we found with SMAC on RSWN can be helpful for other problems, we conducted sets of 100 runs on 4 other problems from the same program synthesis benchmark suite: Double Letters, Stirng Lengths Backwards, Syllables, and X-Word Lines. Each of these problems requires a solution program that manipulates strings like RSWN, but otherwise has different requirements. For example, the Syllables problem requires the program to count the number of vowels in a given input string.
 
-So far, only the RSWN runs are done. For those, 95/100 runs found successful programs, of which 91 generalized to the unseen test data. I believe @mcphee's setup of SMAC is using success on the training data to guide it. So, even though 95\% is slightly worse than his 98\% result, it is almost as good, and is significantly better than the best result I've ever seen on the problem (59\%, with our previously standard parameters).
+In Table~\ref{table:results} we present the number of successful runs out of 100 for each problem, using both the default parameters and those found with SMAC on RSWN. Note that we only count a program as a success if it generalizes to an unseen set of test data. Of these results, the SMAC parameters are only significantly better on the Double Letters problem.\footnote{Using a $\chi^2$ test of proportions with a significance level of $0.05$.} 
+Conversely, SMAC's settings gave significantly worse resutls on the X-Word Lines problem, and no significant difference on the other two problems.
 
-Now for the bad news. 80 runs have finished on the Syllables problem, and only 16/80 have found solutions (all of which generalized). If this rate continues, it will be almost equivalent to 22 solutions with our standard settings.
+These results indicate that while the parameters discovered by SMAC on RSWN do significantly improve results on RSWN itself, they do not provide any improvements on other similar problems. This leads to the conclusion that there is some characteristic of the RSWN problem that makes high mutation rates and high alignment deviations able to find solutions much more quickly, and that this characteristic does not hold for other similar types of problems
 
-So, I think we're seeing that the improvements SMAC made to parameters when using RSWN don't necessarily translate to more success on other problems. It's still worthwhile to see if those parameters help on a handful of other problems, in case Syllables is simply weird in a different way.
-
-So, the runs for String Lengths Backwards, Syllables, and Double Letters are done with the RSWN SMAC settings. The takeaway: all results are almost identical to runs with our standard settings, and none are significantly different!
-
-So, the settings above area really good at solving RSWN, but don't help at all with a handful of other problems! I don't know what to make of this! :confused: I'm not sure why those settings would be specifically good for RSWN, and no better or worse for other problems. I wonder if there's something about RSWN that makes it susceptible to high mutation rates and high alignment deviation.
-
-At this point, I think it would certainly be interesting to run SMAC on either other single problems or on multiple problems at once (or maybe both).
 
 \section{Discussion}
 \label{sec:discussion}
