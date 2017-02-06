@@ -199,8 +199,8 @@ likely that an alternation event will move \todo{Say something about moving off 
 \subsection{SMAC settings}
 \label{sec:SMACsettings}
 
-\subsection{SMAC success results on RSWN}
-\label{sec:SMACresultsRSWN}
+\subsection{Impact of SMAC settings on RSWN success}
+\label{sec:SMACsuccessRSWN}
 
 To test the effect of the SMAC ``tuned'' parameters, we performed 110
 independent runs of the Replace Space With Newline (RSWN) problem using the
@@ -233,24 +233,34 @@ statistically significant ($p<0.015$)
 from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions 
 	with the Holm correction for the 300 separate comparisons.}
 
-\subsection{Impact of SMAC parameters on RSWN}
-\label{sec:SMACimpactRSWN}
+\subsection{Impact of SMAC settings on genetic operator proportions}
+\label{sec:SMACimpactRSWNops}
 
-\todo{Document impact on distribution of operators in ancestry graphs.}
-
-A key change from the Standard parameter settings to the SMAC parameters
+Key differences between the Standard parameter settings to the SMAC parameters
 are the changes in the genetic operator probabilities, as outlined in
-Table~\ref{table:results}. A question this then raises is how these changes
+Table~\ref{tab:clojushParameters}. 
+A question this raises is how these changes
 actually impact the dynamics of the resulting runs, and in particular if and
 how they affect the likelihood of a given genetic operator playing a key
 role in the ultimate discovery of a solution.
 
+%\todo{We should replace this graph with one with a more sensible shaping (e.g., width proportional to the number of genes passed to the child). We may also
+%	want to have two graphs, one filtered and one not filtered to illustrate those
+%	two approaches. It would also be nice if the edges were thicker/more prominent.}
+
 \begin{figure*}
-	\includegraphics[width=6in]{../figures/log1_filter_by_genes_vanilla}
+	\includegraphics[width=\textwidth]{../figures/log1_filter_by_genes_vanilla}
 	\caption{Ancestry graph of a successful Replace Space By Newline run
 	using the ``tuned'' parameters discovered by SMAC. This tree is filtered 
 	to only include individuals that ultimately passed a gene
-	on to the winning individual.}
+	on to the winning individual. Each individual is represented as a
+	rectangle whose width is proportional to the number of selections
+	it received, and whose color is a function of its error vector.
+	Edges indicate parent-child relationships. Dashed black edges indicate
+	that the child was constructed via alternation alone; solid black edges 
+	indicate alternation followed by uniform mutation. Solid orange edges
+	indicate applications of uniform mutation, and dashed orange represent
+	applications of uniform close mutation.}
 	\label{fig:log1ByGenes}
 \end{figure*}
 
@@ -264,14 +274,113 @@ graphs for
 runs~\cite{McPhee:2016:VGP:2908961.2931741,McPhee:2015:GPTP,McPhee:2016:GPTP},
 tracing back from the ``winning'' individuals (programs that have zero error)
 to discover all their ancestors. Figure~\ref{fig:log1ByGenes}, for example,
-shows the ancestry graph for one successful RSWN run using the SMAC parameters.
-\todo{We should replace this graph with one with a more sensible shaping (e.g., width proportional to the number of genes passed to the child). We may also
-want to have two graphs, one filtered and one not filtered to illustrate those
-two approaches.}
+shows the (filtered) ancestry graph for one successful RSWN run 
+using the SMAC parameters. Of these 20 runs with detailed data collection,
+9 of the 10 runs using the SMAC parameters were successful, and 5 of the
+10 runs using the Standard parameters were successful.
 
-\todo{Explain that we collected operator counts in the three different subsets
-	of the entire collection of individuals, and then plot those, and then
-	try to make some sense of the plot.}
+We know that across all the thousands of generated individuals in a run,
+the proportions of the various genetic operators should at least roughly
+match those in Table~\ref{tab:clojushParameters}. It's less clear, however,
+whether the edges in the ancestry graph, i.e., the steps that ultimately led
+to a successful individual, follow the same proportions. To better understand
+the relationship between the parameter settings and the actual operator usage
+in finding solutions, we collected parameter count data from the 14 successful
+runs with detailed data collection, for each of three different 
+groups of individuals:
+\begin{description}
+	\item[Ancestry] All individuals that were ancestors of one or more successful
+	individuals in the final generation
+	\item[Instruction] All individuals that contributed at least one instruction to
+	one or more successful individuals in the final generation
+	\item[LastGen] All 1,000 individuals in the final generation
+\end{description}
+The LastGen group essentially acts as a control to confirm that 
+the overall operator usage matched the parameter settings. The Instruction group
+addresses the fact that an individual can be an \emph{ancestor} of a
+successful individual without actually contributing any genetic material
+to that individual. An individual could contribute genetic material to its
+child, for example, but that material could be snipped out and 
+ultimately lost in subsequent
+generations through repeated mutation and alternation. So the Instruction
+group is the subset of the Ancestry group, where the Instruction group 
+individuals have
+at least one gene that is eventually transmitted to a successful individual
+with its instruction intact. (Thus a gene could have its close count mutated
+by a future uniform close mutation event, but the instruction component of
+that gene would have to remain intact.)
+
+\begin{figure*}
+	\includegraphics[width=\textwidth]{../figures/OperatorProportions}
+	\caption{Proportion of the different genetic operators used to
+	generate different subsets of the population. The horizontal lines 
+	indicate the expected proportion of that operator as specified in 
+	the parameter settings (SMAC or Standard), and deviations from those
+	lines indicate places where a genetic operator was use more or less
+	to generate individuals in that subset of the population 
+	than we would have expected given the parameter settings. See 
+	Section~\ref{sec:SMACimpactRSWNops} for additional details.}
+	\label{fig:opProportions}
+\end{figure*}
+
+Figure~\ref{fig:opProportions} shows the proportion of each genetic 
+operator's use in each of these three groups of the individuals, across
+the 9 successful runs using the SMAC parameters, and the 5 successful runs
+using the Standard parameters. The first
+panel (``Random'') indicates the proportion of individuals in that collection
+of individuals that were randomly generated in the initial population. 
+In each of
+the facets except the first (``Random''), colored horizontal lines indicate
+the proportions set in the relevant parameter settings (i.e., SMAC or
+Standard). Thus distributions that are substantially higher or lower than
+their associated line indicate cases where the proportion of individuals in
+that subset of the population created by that operation were higher or
+lower than one would expect given the parameter settings.
+
+Not surprisingly, randomly generated individuals are not a large
+proportion of the individuals in either ancestry tree, and don't exist
+at all in the final generation. The two SMAC outliers in the Random panel in Figure~\ref{fig:opProportions} come from the run
+illustrated in Figure~\ref{fig:log1ByGenes}, which found a solution in 
+just 10 generations, so the (still small) number
+of ancestors in the initial random generation weren't ``amortized''
+across many additional generations.
+
+The LastGen counts are, as we would hope, close to the parameter
+setting values (i.e., the horizontal lines). The fact that some of the
+boxplots don't actually overlap the parameter setting is probably due
+to the small number of samples, especially for Standard, where we only
+have 5 successful runs.
+
+With the exception of Standard with just Alternation and, to a
+lesser degree, Standard with Uniform Close Mutation, the proportion
+of operators in the either of the ancestry trees is noticeably
+different from the parameter settings. For Uniform Mutation alone, for 
+example, (the second panel) the SMAC parameter setting
+was 0.36, but the median values across both ancestry trees were much closer to
+the \emph{Standard} parameter setting of 0.2. The Standard proportions across
+both ancestry trees (median 0.27 for Ancestry, 0.24 for Instruction) were definitely higher than the Standard setting of 0.2, but not as high as the
+SMAC setting of 0.36. If all one had was the Standard results, one might 
+have suspected that the fact that
+the Standard proportions for uniform mutation were higher than the Standard
+setting was a hint that successful runs would benefit from higher uniform
+mutation rates. This guess would then appear to be supported by the fact
+that SMAC found that a higher proportion of uniform mutation did in fact
+improve success rates. What is less obvious, however, is why the \emph{actual}
+proportions of uniform mutation steps that ultimate led to the discovery of
+a successful individual in the SMAC runs were quite a bit lower than the SMAC
+settings, being very close to the original Standard parameter value.
+
+While it's not clear exactly what is the source of this apparent discrepancy,
+one potentially contributing factor might be variations in the impact of the
+different genetic operators. If, for example, alternation makes viable 
+children more often, you would need fewer alternation events 
+per reproduction event to generate a certain number of ``successful''
+alternations. If, on the other hand, uniform mutation makes viable children 
+less often (especially with SMAC's much higher uniform mutation rate), 
+you would need more uniform mutation events to generate the
+desired number of ``successful'' mutations. At this point this is just
+speculation, and more data collection and analysis would be needed to better
+understand these interactions.
 
 \section{Applying those parameters to other problems}
 \label{sec:applyingToOtherProblems}
