@@ -28,25 +28,74 @@ about how we used the tool than any property of the tool itself.
 \section{Background}
 \label{sec:background}
 
+The primary focus of this paper is exploration of applications of the SMAC
+parameter optimization system to the Clojush implementation of
+PushGP. Here we'll provide a brief overview of both of these systems; we
+obviously can't cover all the details in the available space, however, and the
+reader is encouraged to refer to the cited work for additional detail.
+
+\subsection{SMAC and parameter optimization}
+\label{sec:SMACbackground}
+
+There is a long history of optimizing parameters in evolutionary computation
+including, for example early work on optimizing mutation rates~\cite{back1993optimal} and 
+population sizes~\cite{alander1992optimal} for genetic algorithms.
+The tendency for new techniques to introduce additional parameters, 
+and difficulties in finding parameters that performed well in a range of
+settings led to exploration of a host of approaches to parameter
+optimization, as well as the development of both self-adaptive systems
+and parameterless systems.~\cite{lobo2007parameter}
+
+Recent developments in statistical modeling and machine learning have
+led to the design of powerful new techniques for parameter optimization. 
+Sequential Model-based Algorithm Configuration (SMAC), for example, is a
+highly flexible tool for optimizing algorithm parameters, using repeated runs
+of the target algorithm with different parameter values to estimate
+the relationship between parameters and performance.~\cite{HutHooLey11-SMAC}. Starting from initial set of default
+parameter settings, SMAC updates the \emph{incumbent} (essentially the
+best collection of parameter settings found so far) by iteratively:
 \begin{itemize}
-	\item The citation the SMAC people ask us to use is~\cite{HutHooLey11-SMAC}.
-	\item We should also probably cite their GECCO 2013 
-	paper~\cite{hutter2013evaluation} as a prior example of using this in EC.
+	\item Fitting a model to the data it has relating parameter settings and algorithm performance
+	\item Selecting new configurations to explore
+	\item Performing additional runs of the target algorithm to both (a)
+	add to the knowledge of the performance of previously explored
+	configurations (including the current incumbent) and
+	(b) exploring new configurations
 \end{itemize}
+The details of these steps are beyond the scope of this paper; 
+see~\cite{HutHooLey11-SMAC} for additional information. 
 
-This is pretty fuzzy to me (Nic). We don't need to say a lot about \emph{how}
-SMAC works, but we do need to talk about \emph{what it does}. Maybe that just
-gets blended into the introduction?
+SMAC has been successfully applied to parameter
+optimization in a variety of machine learning and algorithmic 
+applications, including prior 
+work~\cite{hutter2013evaluation} comparing SMAC to an
+evolutionary computation system (CMA-ES~\cite{hansen1996adapting}).
+As far as we know, however, there is no published work on applying SMAC to
+the optimization of genetic programming parameters.
 
-Somewhere we'll presumably need to acknowledge that (a) there's been lots of
-work historically on parameter optimization (e.g., early work on things like
-population sizes and mutation rates in GAs) and (b) SMAC is by no means the
-only tool of its kind out there. It would be great if someone could do some
-lit review on that latter question in particular. (A few early examples would
-be sufficient to make the first point; the latter is more politically charged.)
+\subsection{Push programs and Plush genomes}
+\label{sec:PushGPBackground}
 
-We also need to provide at least a minimal overview of Push/Plush/Clojush so
-we can explain the meaning/action of the the parameters we chose to tune. 
+PushGP is a genetic programming system that evolves Push programs 
+\cite{spector2:2001:gecco,spector:2002:GPEM,push3gecco,Helmuth:2015:dissertation}. 
+Push is a stack-based language that runs on a virtual machine with a stack for 
+each data type, including standard types such as numbers, characters, and 
+collections, and also types for Push program code that can be dynamically 
+manipulated and executed. 
+
+Push programs have nested structure, but in recent PushGP systems these 
+programs are encoded using linear ``Plush'' 
+genomes~\cite{helmuthlinear}.\footnote{The added ``l'' in ``Plush'' 
+	is for ``linear'')}
+With Plush, individuals are created and varied as linear Plush genomes, and 
+translated into nested Push programs only for execution.
+Plush genomes are sequences of genes, each of which specifies an instruction or 
+a literal (such as a number or string), and each of which may also be annotated 
+with {\it epigenetic markers} for silencing the gene (meaning that the instruction 
+or literal will not be translated to the Push program) or for the closing of nested 
+blocks in translated programs~\cite{la2015inheritable}. These three aspects of 
+genes (instruction/literal, silent marker, and ``close'' count) may be mutated 
+independently.
 
 \section{Tuning parameters for Replace~Space With Newline}
 \label{sec:tuningRSWN}
