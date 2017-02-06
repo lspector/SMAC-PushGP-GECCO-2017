@@ -1,29 +1,64 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Set up SMAC, what we did with it, and what we learned.
+There is a long history of optimizing parameters in evolutionary computation
+including, for example early work on optimizing mutation rates~\cite{back1993optimal} and 
+population sizes~\cite{alander1992optimal} for genetic algorithms.
+The tendency for new techniques to introduce additional parameters, 
+and difficulties in finding parameters that performed well in a range of
+settings led to exploration of a host of approaches to parameter
+optimization, as well as the development of both self-adaptive systems
+and parameterless systems.~\cite{lobo2007parameter}
 
-\todo{The following could be moved to Background if we think it makes more
-	sense there.}
-It is important to keep in mind that there is little in this paper that is
-specific to SMAC or its details or, for that matter, Clojush or its details. 
-There are many approaches to parameter
-tuning, and presumably similar results could have been acquired with many of
-them. What matters the most here is that:
-\begin{itemize}
-	\item SMAC was able to discover parameter settings that 
-	\emph{substantially} improved the performance
-	of Clojush on the Replace Space With Newline problem.
-	\item Applying those optimized parameter settings to a variety of other
-	problems let to very mixed results, suggesting that those parameter
-	settings were very specific to the particular problem used for the SMAC
-	search.
-\end{itemize}
-The fact that SMAC was able to discover settings that improved
-performance on the Replace Space With Newline problem by such a wide margin
-is quite impressive. The fact that those parameter settings don't appear to
-generalize is in no way the ``fault'' of SMAC, and are likely much more 
-about how we used the tool than any property of the tool itself.
+Recent developments in statistical modeling and machine learning have
+led to the design of powerful new techniques for parameter optimization. 
+Sequential Model-based Algorithm Configuration (SMAC), for example, is a
+highly flexible tool for optimizing algorithm parameters, using repeated runs
+of the target algorithm with different parameter values to estimate
+the relationship between parameters and performance.~\cite{HutHooLey11-SMAC}. In his GECCO 2016 keynote 
+address~\cite{Hoos:2016:TCM:2908812.2908960}, Holger Hoos argued
+that the parameter optimization field had reached a state where 
+instead of avoiding new
+parameters, or making arbitrary choices for parameter values, researchers
+should expose as many parameters as possible, and then use tools like
+SMAC to optimize those (possibly large) sets of parameters.
+
+Here we present a case study of applying SMAC to optimize parameters a
+set of 6 parameters for the Clojush\footnote{https://github.com/lspector/Clojush} 
+implementation of the PushGP system~\cite{spector:2002:GPEM,push3gecco}
+when applied to several software synthesis 
+benchmark problems~\cite{Helmuth:2015:GECCO}. While SMAC was able to
+find ``tuned'' parameters for one problem which substantially improved
+the success rate on that problem, those ``tuned'' parameters appear to
+be very problem specific, leading to no improvement on several other
+problems, and actively hurting performance on another. This is a useful
+reminder that parameter optimization is, like all machine learning tools,
+subject to overfitting, and that just because a set of parameters works 
+well on one problem, or even a set of problems, doesn't mean it will be
+a good choice for the new unsolved problem that you're \emph{really}
+interested in solving.
+
+SMAC does provide settings designed to reduce the likelihood of this kind of
+overfitting by, for example, applying SMAC to a suite of problems or problem
+instances. We found, however, that
+our ability to use SMAC to optimize parameters for \emph{single} problems
+was in many cases severely
+hindered by the computation time necessary for the PushGP runs, and the low
+success rate on some of the harder problems, which resulted in limited
+signal for SMAC to act on. Using SMAC on suites of problems that are
+computationally expensive to run and have low success rates is then even
+more problematic, and something deserve further attention.
+
+In the next section we'll provide some necessary background on both SMAC
+and PushGP, including discussion of the optimized parameters and test
+problems. In Section~\ref{sec:tuningRSWN} we outline how we 
+used SMAC to optimize the parameters for the Replace Space With Newline
+problem, followed by a discussion of the impact of those ``tuned''
+parameters in Section~\ref{sec:SMACimpact}. 
+Section~\ref{sec:applyingToOtherProblems} documents the results of
+applying these new ``tuned'' parameters to several other software
+synthesis problems, and we wrap up with ideas for future work
+(Section~\ref{sec:futureWork}) and conclusions (Section~\ref{sec:conclusion}).
 
 \section{Background}
 \label{sec:background}
@@ -45,6 +80,9 @@ and difficulties in finding parameters that performed well in a range of
 settings led to exploration of a host of approaches to parameter
 optimization, as well as the development of both self-adaptive systems
 and parameterless systems.~\cite{lobo2007parameter}
+
+\todo[inline]{Say things about the ability to handle categorical variables,
+illegal spaces, parallel, etc.}
 
 Recent developments in statistical modeling and machine learning have
 led to the design of powerful new techniques for parameter optimization. 
@@ -96,6 +134,8 @@ or literal will not be translated to the Push program) or for the closing of nes
 blocks in translated programs~\cite{la2015inheritable}. These three aspects of 
 genes (instruction/literal, silent marker, and ``close'' count) may be mutated 
 independently.
+
+\todo[inline]{Say something about test problems.}
 
 \section{Tuning parameters for Replace~Space With Newline}
 \label{sec:tuningRSWN}
@@ -247,6 +287,9 @@ likely that an alternation event will move \todo{Say something about moving off 
 
 \subsection{SMAC settings}
 \label{sec:SMACsettings}
+
+\section{Impact of SMAC on RSWN runs}
+\label{sec:SMACimpact}
 
 \subsection{Impact of SMAC settings on RSWN success}
 \label{sec:SMACsuccessRSWN}
@@ -495,5 +538,26 @@ A piece from @thelmuth at Discourse that we might want to use:
 \section{Conclusions}
 \label{sec:conclusion}
 
-Evolution is complicated!
+It is important to keep in mind that there is little in this paper that is
+specific to SMAC or its details or, for that matter, Clojush or its details. 
+There are many approaches to parameter
+tuning, and presumably similar results could have been acquired with many of
+them. What matters the most here is that:
+\begin{itemize}
+	\item SMAC was able to discover parameter settings that 
+	\emph{substantially} improved the performance
+	of Clojush on the Replace Space With Newline problem.
+	\item Applying those optimized parameter settings to a variety of other
+	problems let to very mixed results, suggesting that those parameter
+	settings were very specific to the particular problem used for the SMAC
+	search.
+\end{itemize}
+The fact that SMAC was able to discover settings that improved
+performance on the Replace Space With Newline problem by such a wide margin
+is quite impressive. The fact that those parameter settings don't appear to
+generalize is in no way the ``fault'' of SMAC, and are likely more 
+about the computational properties of our test problems and how we used 
+the tool than any property of the tool itself.
 
+\todo[inline]{Say something about computational cost of doing suites of
+problems.}
