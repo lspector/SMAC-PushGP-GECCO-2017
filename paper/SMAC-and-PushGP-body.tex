@@ -24,7 +24,7 @@ should expose as many parameters as possible, and then use tools like
 SMAC to optimize those (possibly large) sets of parameters.
 
 Here we present a case study of applying SMAC to optimize parameters a
-set of 6 parameters for the Clojush\footnote{https://github.com/lspector/Clojush} 
+set of 9 parameters for the Clojush\footnote{https://github.com/lspector/Clojush} 
 implementation of the PushGP system~\cite{spector:2002:GPEM,push3gecco}
 when applied to several software synthesis 
 benchmark problems~\cite{Helmuth:2015:GECCO}. While SMAC was able to
@@ -188,27 +188,32 @@ experiments in~\cite{Helmuth:2015:GECCO}.
 
 \begin{table}
 	\begin{center}
-	\begin{tabular}{l@{\quad} @{\enskip}l@{\quad} @{\enskip}r@{\quad} @{\enskip}l}
-		Parameter & Range & Default & Modifiers \\
+	\begin{tabular}{p{4cm} p{2cm} ll}
+		Parameter & Range & Default \\
 		\hline
-		Population size & $[1, 30K]$ & 1,000 & integer, log \\
+		Population size & $[1, 30K]$ & 1,000 \\
 		% Maximum generations & $[1, 30K]$ & $30,000/\textrm{population size}$ \\
-		Selection method & tournament or & lexicase & categorical \\
-		& \quad lexicase \\
+		Selection method & \emph{tournament} \linebreak or \emph{lexicase} & \emph{lexicase} \\
 		\hline
-		Alternation prob. & $[0, 1]$ & 0.2 \\
 		Uniform mutation prob. & $[0, 1]$ & 0.2 \\
 		Uniform close mutation prob. & $[0, 1]$ & 0.1 \\
-		(Alternation, Uniform mutation) prob. & $[0, 1]$ & 0.5 \\
+		Alternation prob. & $[0, 1]$ & 0.2 \\
+		(Alternation \linebreak + \quad Uniform mutation) prob. & $[0, 1]$ & 0.5 \\
 		\hline
 		Alternation rate & $[0, 1]$ & 0.01 \\
-		Alignment deviation & $[0, 400]$ & 10 & integer \\
+		Alignment deviation & $[0, 400]$ & 10 \\
 		\hline
 		Uniform mutation rate & $[0, 1]$ & 0.1
 	\end{tabular}
 	\end{center}
-	\caption{Clojush parameters optimized by SMAC for the Replace Space With Newline problem, along with their ranges, 
-		default values, and modifiers. See Section~\ref{sec:parametersOptimized} for additional details.}
+	\caption{Clojush parameters optimized by SMAC for the Replace Space With 
+		Newline problem, along with their ranges and 
+		default values.  Population size and
+		alignment deviation, are specified to have integer values.  Population
+		size is also specified to be on a $\log$ scale. The selection
+		method is a categorical (non-numeric) variable.
+		See Section~\ref{sec:parametersOptimized} for additional details.
+	}
 	\label{tab:clojushParameters}
 \end{table}
 
