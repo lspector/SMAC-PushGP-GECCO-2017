@@ -7,8 +7,7 @@ population sizes~\cite{alander1992optimal} for genetic algorithms.
 The tendency for new techniques to introduce additional parameters, 
 and difficulties in finding parameters that performed well in a range of
 settings led to exploration of a host of approaches to parameter
-optimization, as well as the development of both self-adaptive systems
-and parameterless systems.~\cite{lobo2007parameter}
+optimization.~\cite{lobo2007parameter}
 
 Recent developments in statistical modeling and machine learning have
 led to the design of powerful new techniques for parameter optimization. 
@@ -17,7 +16,7 @@ highly flexible tool for optimizing algorithm parameters, using repeated runs
 of the target algorithm with different parameter values to estimate
 the relationship between parameters and performance.~\cite{HutHooLey11-SMAC}. In his GECCO 2016 keynote 
 address~\cite{Hoos:2016:TCM:2908812.2908960}, Holger Hoos argued
-that the parameter optimization field had reached a state where 
+that the parameter optimization field had reached a state where, 
 instead of avoiding new
 parameters, or making arbitrary choices for parameter values, researchers
 should expose as many parameters as possible, and then use tools like
@@ -35,16 +34,16 @@ problems, and actively hurting performance on another. This is a useful
 reminder that parameter optimization is, like all machine learning tools,
 subject to overfitting, and that just because a set of parameters works 
 well on one problem, or even a set of problems, doesn't mean it will be
-a good choice for the new unsolved problem that you're \emph{really}
-interested in solving.
+a good choice for the new unsolved problem.
 
 SMAC does provide settings designed to reduce the likelihood of this kind of
 overfitting by, for example, applying SMAC to a suite of problems or problem
 instances. We found, however, that
 our ability to use SMAC to optimize parameters for \emph{single} problems
 was in many cases severely
-hindered by the computation time necessary for the PushGP runs, and the low
-success rate on some of the harder problems, which resulted in limited
+hindered by the computation time necessary for the PushGP runs.
+Also, the low
+success rate on some of the harder problems resulted in limited
 signal for SMAC to act on. Using SMAC on suites of problems that are
 computationally expensive to run and have low success rates is then even
 more problematic, and something that deserves further attention.
@@ -80,7 +79,8 @@ best collection of parameter settings found so far) by
 iteratively:\footnote{The details of these steps are beyond the scope of this 
 	paper; see~\cite{HutHooLey11-SMAC} for additional information.}
 \begin{itemize}
-	\item Fitting a model to the data it has relating parameter settings and algorithm performance
+	\item Fitting a model to the data SMAC has collected so far relating 
+	parameter settings and algorithm performance
 	\item Selecting new configurations to explore
 	\item Performing additional runs of the target algorithm to both (a)
 	add to the knowledge of the performance of previously explored
@@ -170,8 +170,8 @@ In this work we used four genetic operators to construct new individuals:
 
 Like most ``industrial
 strength'' EAs, Clojush has dozens of parameters that need to be set by the
-practicioner, ranging from ``standard'' parameters like the population size
-and the maximum number of generations to more Push-specific parameters
+practicioner, ranging from ``standard'' parameters, like the population size
+and the maximum number of generations, to more Push-specific parameters
 such as \emph{alignment deviation} and \emph{uniform close mutation} 
 described above). The results presented with the introduction of the
 benchmark suite~\cite{Helmuth:2015:GECCO} were all obtained using a single
@@ -259,15 +259,15 @@ describe as the ``Standard'' parameter settings.
 
 The first two parameters in Table~\ref{tab:clojushParameters} (population size
 and selection method) are fairly ``generic'' parameters. Population size, 
-however, presented an interesting issue, because while we wanted SMAC to be able to
+however, presented an interesting issue because. while we wanted SMAC to be able to
 explore the impact of population size, we needed to maintain a consistent
 computational budget; otherwise SMAC would presumably discover the ``obvious''
 fact that it is almost always desirable to provide more computational resources to the underlying Clojush search. We wanted to make the runs comparable to those
 reported in~\cite{Helmuth:2015:GECCO}, all of which used a population size of
-1,000 for 300 generations, meaning that at most 30K individuals were evaluated 
+1,000 for 300 generations, meaning that at most 30,000 individuals were evaluated 
 in the course of a run.\footnote{Clojush runs there, and in this work, 
 	were terminated early when a solution was found, so some runs used
-	considerably less than their full budget of 30K evaluations.} To provide
+	considerably less than their full budget of 30,000 evaluations.} To provide
 a similar constraint here, we allowed SMAC to explore the full range of 
 $[1, 30K]$ for the population size, and computed the maximum number of
 generations as
@@ -275,7 +275,7 @@ generations as
 	\left \lfloor{\frac{30,000}{\textrm{population size}}}\right \rfloor
 \]
 This ensures that no Clojush run explored by SMAC would be allowed 
-\emph{more} than 30K individual evaluations, although some choices of 
+\emph{more} than 30,000 individual evaluations, although some choices of 
 population size would be ``penalized'' by being allocated substantially fewer. 
 Any population size over 15K, for example, would get only one generation, which 
 means a population size just over 15K would get just over half the evaluations 
@@ -310,7 +310,7 @@ The next four parameters in Table~\ref{tab:clojushParameters} indicate the
 relative likelihood of each of the four genetic operators. These need to sum
 to 1 (since every individual must be created via \emph{some} genetic operator),
 so these were normalized before being passed from SMAC to Clojush by dividing
-each by the sum of the four.\footnote{This arguably inflates the dimensionality of the
+each by the sum of those four parameters.\footnote{This arguably inflates the dimensionality of the
 search space for SMAC; from SMAC's perspective these parameters provide four
 degrees of freedom, when in reality there are only three since values for any
 three determine the value of the fourth. The obvious ways of addressing this
@@ -404,15 +404,15 @@ mutation rate, and much higher alignment deviation values.
 \subsection{Impact of SMAC settings on RSWN success}
 \label{sec:SMACsuccessRSWN}
 
-To test the effect of the SMAC ``tuned'' parameters, we performed 110
+To test the effect of the SMAC parameters, we performed 110
 independent runs of the Replace Space With Newline (RSWN) problem using the
 SMAC parameters, as well as 110 independent runs of RSWN using the
 Standard parameters.
 
 As one might expect, using the parameters SMAC ``tuned'' for the
 Replace Space With Newline problem led to a 
-substantial increase in the proportion of successful runs. 59 of 
-the 110 Standard runs succeeded, or a success rate of 54\%, while 104 of the
+substantial increase in the proportion of successful runs. Of the 110
+Standard runs, 59  succeeded, or a success rate of 54\%, while 104 of the
 110 SMAC runs succeeded, or a success rate of 95\%.\footnote{A $\chi^2$ test of 
 proportions yields a $p$-value of $1.2 \times 10^{-11}$, so (not surprisingly)
 these differences are statistically significant.}
@@ -487,7 +487,7 @@ match those in Table~\ref{tab:clojushParameters}. It's less clear, however,
 whether the edges in the ancestry graph, i.e., the steps that ultimately led
 to a successful individual, follow the same proportions. To better understand
 the relationship between the parameter settings and the actual operator usage
-in finding solutions, we collected parameter count data from the 14 successful
+in finding solutions, we collected genetic operator count data from the 14 successful
 runs with detailed data collection, for each of three different 
 groups of individuals:
 \begin{description}
@@ -526,7 +526,7 @@ that gene would have to remain intact.)
 \end{figure*}
 
 Figure~\ref{fig:opProportions} shows the proportion of each genetic 
-operator's use in each of these three groups of the individuals, across
+operator's use in each of these three groups of the individuals across
 the 9 successful runs using the SMAC parameters, and the 5 successful runs
 using the Standard parameters. The first
 panel (``Random'') indicates the proportion of individuals in that collection
@@ -536,8 +536,8 @@ the facets except the first (``Random''), colored horizontal lines indicate
 the proportions set in the relevant parameter settings (i.e., SMAC or
 Standard). Thus distributions that are substantially higher or lower than
 their associated line indicate cases where the proportion of individuals in
-that subset of the population created by that operation were higher or
-lower than one would expect given the parameter settings.
+that subset of the population created by that operation differed from what
+one might have expected given the parameter settings.
 
 Not surprisingly, randomly generated individuals are not a large
 proportion of the individuals in either ancestry tree, and don't exist
