@@ -56,8 +56,8 @@ problem, followed by a discussion of the impact of those ``tuned''
 parameters in Section~\ref{sec:SMACimpact}. 
 Section~\ref{sec:applyingToOtherProblems} documents the results of
 applying these new ``tuned'' parameters to several other software
-synthesis problems, and we wrap up with ideas for future work
-(Section~\ref{sec:futureWork}) and conclusions (Section~\ref{sec:conclusion}).
+synthesis problems, and we wrap up with conclusions and ideas for future 
+work (Section~\ref{sec:conclusionsAndFutureWork}).
 
 \section{Background}
 \label{sec:background}
@@ -628,52 +628,67 @@ Conversely, SMAC's settings gave significantly worse results on the X-Word Lines
 
 These results indicate that while the parameters discovered by SMAC on RSWN do significantly improve results on RSWN itself, they do not provide any improvements on other similar problems. This leads to the conclusion that there is some characteristic of the RSWN problem that makes high mutation rates and high alignment deviations able to find solutions much more quickly, and that this characteristic does not hold for other similar types of problems
 
+\section{Conclusions and future work}
+\label{sec:conclusionsAndFutureWork}
 
-\section{Discussion}
-\label{sec:discussion}
+In this case study, we were able to successfully use SMAC to optimize a 
+collection of 9 PushGP parameters on the Replace Space With Newline problem, 
+and the resulting ``tuned'' parameters had much higher success rates than the
+Standard parameters used in~\cite{Helmuth:2015:GECCO}, with solutions 
+being discovered more quickly than with the Standard parameters.
+Modifying the parameters also appears to have substantially altered the
+proportion of the various genetic operators that played key roles in the
+discovery of solutions; the nature of those changes isn't obvious, however.
 
-Talk about what we learned and what this means
+Unfortunately, it appears that in some sense SMAC ``overfit'' on the Replace
+Space With Newline problem, as applying these parameters to four additional
+software synthesis problems let to rather mixed results. While the SMAC
+parameters did lead to a modest (but statistically significant) improved 
+success rate on one of the four additional problems, it had no impact on
+two others, and significantly reduced the success rate on the last.
 
-A piece from @thelmuth at Discourse that we might want to use:
-\begin{quote}
-	Here's a simpler version of my first explanation: alternation makes viable children more often, so you need less of it per event that you want to be successful. Uniform mutation makes viable children less often, so you need more of it per event that you want to be successful. Uniform close mutation makes viable children the most often, so you need least of it per event you want to be successful. Then, in the ancestors of the solution, you get the percents of the events you want to be successful, not the percent of the events you have in total.
-\end{quote}
-
-\section{Future work}
-\label{sec:futureWork}
-
-\begin{itemize}
-	\item Use SMAC to tune parameters on the other four problems one at a time, and see how that works on the other problems.
-	\item Use SMAC to tune on (sub)sets of the problems, like all 5, or on subsets that seem similar (or different) based on the individual tuning.
-	\item etc.
-\end{itemize}
-
-\section{Conclusions}
-\label{sec:conclusion}
-
-It is important to keep in mind that there is little in this paper that is
-specific to SMAC or its details or, for that matter, Clojush or its details. 
-There are many approaches to parameter
-tuning, and presumably similar results could have been acquired with many of
-them. What matters the most here is that:
-\begin{itemize}
-	\item SMAC was able to discover parameter settings that 
-	\emph{substantially} improved the performance
-	of Clojush on the Replace Space With Newline problem.
-	\item Applying those optimized parameter settings to a variety of other
-	problems let to very mixed results, suggesting that those parameter
-	settings were very specific to the particular problem used for the SMAC
-	search.
-\end{itemize}
 The fact that SMAC was able to discover settings that improved
 performance on the Replace Space With Newline problem by such a wide margin
 is quite impressive. The fact that those parameter settings don't appear to
 generalize is in no way the ``fault'' of SMAC, and are likely more 
 about the computational properties of our test problems and how we used 
-the tool than any property of the tool itself.
+the tool (SMAC) than any property of the tool itself.
 
-\todo[inline]{Say something about computational cost of doing suites of
-problems.}
+One obvious extension of this work would be to try to use SMAC's ability
+to optimize across suites of problems or problem instances in the hopes
+that this will reduce the ``overfitting'' seen here. Unfortunately, this will
+be a computationally expensive task. We made several attempts at applying
+SMAC to our other four test problems individually, for example, and found
+that in some sense we'd gotten lucky in our initial choice of the Replace
+Space With Newline (RSWN) problem. While we could cap individual  PushGP
+RSWN runs at one hour and still find solutions, it turns out that we needed
+to use caps of 12 to 24 hours for single PushGP runs on the other problems
+or the odds of finding a solution became so low that SMAC simply had no
+signal to work with. Such long execution times suggest that it will take
+weeks, if not months, of wall clock time to make any meaningful progress
+on a suite of problems, even if we take advantage of SMAC's ability to run
+cooperative parallel optimization processes on a cluster.
+
+One modification that might lead to more effective parameter search
+would be to provide SMAC with more information about the outcome of a
+run than just a binary success-failure response. We could, for example,
+relax our ``uncompromising'' stance and give SMAC something like total
+error for runs that didn't succeed, although this comes with the risk that 
+SMAC will become trapped in a local optima that consistently yields low
+total error, but rarely (or never) finds an actual solution. We could also
+include some runtime information in what is passed to SMAC, encouraging
+it to favor parameter settings that find solutions quickly over those that take
+longer.
+
+Another avenue that could affect the run times would be to explore
+additional parameters. The 9 parameters chosen here focused primarily
+on the ``genetics'' of a run, but there are \emph{numerous} other parameters
+that we could make available to SMAC. Some of these, like the range of
+genome sizes in the initial population, and limits on genome sizes, program
+sizes, and number of allowed function evaluations could all have substantial
+impacts on how long individual PushGP runs could take. If SMAC was encouraged
+to find solutions \emph{quickly} then it might be able to discover new
+settings for these parameters that speed up the process.
 
 \section*{Acknowledgements}
 \label{sec:acknowledgements}
@@ -681,3 +696,5 @@ problems.}
 We are very grateful to participants on the SMAC forum for their patience
 in answering numerous questions as we worked to understand how to use
 SMAC.
+
+Thanks to Mitchell Finzel and Elsa Browning for their editing assistance.
