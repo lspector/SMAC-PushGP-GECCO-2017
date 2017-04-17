@@ -7,26 +7,26 @@ including, for example, early work on optimizing mutation
 rates~\cite{back1993optimal} and population sizes for genetic algorithms~\cite{alander1992optimal}.
 Recent developments in statistical modeling and machine learning have
 led to the design of powerful new techniques for parameter optimization. 
-Sequential Model-based Algorithm Configuration (SMAC), for example, is a
-highly flexible tool for optimizing algorithm parameters, using repeated runs
+Sequential Model-based Algorithm Configuration~(SMAC), for example, is a
+ flexible tool for optimizing algorithm parameters; SMAC uses repeated runs
 of the target algorithm with different parameter values to estimate
 the relationship between parameters and performance~\cite{HutHooLey11-SMAC}. In his GECCO 2016 keynote 
 address~\cite{Hoos:2016:TCM:2908812.2908960}, Holger Hoos argued
 that the parameter optimization field had reached a state where, 
 instead of avoiding new
-parameters, or making arbitrary choices for parameter values, researchers
+parameters or making arbitrary choices for parameter values, researchers
 should expose as many parameters as possible, and then use tools like
 SMAC to optimize those (possibly large) sets of parameters.
 
 Here we summarize a case study of applying SMAC to optimize a
-set of 9 parameters for the Clojush\footnote{https://github.com/lspector/Clojush} 
+set of nine parameters for the Clojush\footnote{https://github.com/lspector/Clojush} 
 implementation of the PushGP system~\cite{spector:2002:GPEM,push3gecco}
 when applied to several software synthesis 
-benchmark problems~\cite{Helmuth:2015:GECCO}. While SMAC was able to
-find ``tuned'' parameters for one problem which substantially improved
+benchmark problems~\cite{Helmuth:2015:GECCO}. While SMAC found
+``tuned'' parameters for one problem which substantially improved
 the success rate on that problem, those ``tuned'' parameters appear to
-be problem specific, leading to no improvement on several other
-problems, and actively hurting performance on another. This is a useful
+be problem specific. Applying them led to no improvement on several other
+problems, and actively hurt the performance on another. This is a useful
 reminder that parameter optimization is, like all machine learning problems,
 subject to overfitting, and that just because a set of parameters works 
 well on one problem, or even a set of problems, doesn't mean it will be
@@ -100,11 +100,11 @@ those four values so they summed to 1.
 %\end{figure}
 
 The final row of Table~\ref{tab:RswnResults} shows that the SMAC parameters
-led to significantly higher success rates, with 95\% of
-the SMAC parameter runs finding a solution, versus 54\% with the default settings.
+led to significantly higher success rates; 95\% of
+the SMAC parameter runs find a solution, where only 54\% of the runs with the
+the default setting find solutions.
 The runs using the SMAC
-parameter configuration also discovered solutions much earlier than runs using
-the default parameters. By generation 100, for example, 87\% of the runs had succeeded when using the SMAC parameters, 
+parameter configuration also discovered solutions much earlier. By generation 100, for example, 87\% of the runs had succeeded when using the SMAC parameters, 
 where only 37\% of the runs with the default settings
 had succeeded.
 
@@ -159,7 +159,7 @@ synthesis problems, this can lead to hundreds of runs, each run lasting up to
 
 Thus, while it is important to find ways to help SMAC (or similar tools)
 discover more generally applicable parameter settings, doing so on suites 
-of problems that are computationally expensive to run and have low success rates is certainly problematic, deserving of further attention.
+of problems that are computationally expensive to run and have low success rates is certainly problematic, and deserving of further attention.
 
 \section*{Acknowledgements}
 \label{sec:acknowledgements}
