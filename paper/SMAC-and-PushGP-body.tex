@@ -1,20 +1,16 @@
 \section{Introduction}
 \label{sec:introduction}
 
-There is a long history of optimizing parameters in evolutionary computation
-including, for example, early work on optimizing mutation rates~\cite{back1993optimal} and 
-population sizes~\cite{alander1992optimal} for genetic algorithms.
-The tendency for new techniques to introduce additional parameters, 
-and difficulties in finding parameters that performed well in a range of
-settings led to exploration of a host of approaches to parameter
-optimization.~\cite{lobo2007parameter}
-
+There is a long history of optimizing parameters in evolutionary 
+computation~\cite{lobo2007parameter}
+including, for example, early work on optimizing mutation 
+rates~\cite{back1993optimal} and population sizes for genetic algorithms~\cite{alander1992optimal}.
 Recent developments in statistical modeling and machine learning have
 led to the design of powerful new techniques for parameter optimization. 
 Sequential Model-based Algorithm Configuration (SMAC), for example, is a
 highly flexible tool for optimizing algorithm parameters, using repeated runs
 of the target algorithm with different parameter values to estimate
-the relationship between parameters and performance.~\cite{HutHooLey11-SMAC}. In his GECCO 2016 keynote 
+the relationship between parameters and performance~\cite{HutHooLey11-SMAC}. In his GECCO 2016 keynote 
 address~\cite{Hoos:2016:TCM:2908812.2908960}, Holger Hoos argued
 that the parameter optimization field had reached a state where, 
 instead of avoiding new
@@ -22,7 +18,7 @@ parameters, or making arbitrary choices for parameter values, researchers
 should expose as many parameters as possible, and then use tools like
 SMAC to optimize those (possibly large) sets of parameters.
 
-Here we present a case study of applying SMAC to optimize a
+Here we summarize a case study of applying SMAC to optimize a
 set of 9 parameters for the Clojush\footnote{https://github.com/lspector/Clojush} 
 implementation of the PushGP system~\cite{spector:2002:GPEM,push3gecco}
 when applied to several software synthesis 
@@ -31,670 +27,144 @@ find ``tuned'' parameters for one problem which substantially improved
 the success rate on that problem, those ``tuned'' parameters appear to
 be very problem specific, leading to no improvement on several other
 problems, and actively hurting performance on another. This is a useful
-reminder that parameter optimization is, like all machine learning tools,
+reminder that parameter optimization is, like all machine learning problems,
 subject to overfitting, and that just because a set of parameters works 
 well on one problem, or even a set of problems, doesn't mean it will be
 a good choice for the new unsolved problem.
 
-SMAC does provide settings designed to reduce the likelihood of this kind of
-overfitting by, for example, applying SMAC to a suite of problems or problem
-instances. We found, however, that
-our ability to use SMAC to optimize parameters for \emph{single} problems
-was in many cases severely
-hindered by the computation time necessary for the PushGP runs.
-Also, the low
-success rate on some of the harder problems resulted in limited
-signal for SMAC to act on. Using SMAC on suites of problems that are
-computationally expensive to run and have low success rates is then even
-more problematic, and something that deserves further attention.
-
-In the next section we'll provide some necessary background on both SMAC
-and PushGP, including discussion of the optimized parameters and test
-problems. In Section~\ref{sec:tuningRSWN} we outline how we 
-used SMAC to optimize the parameters for the Replace Space With Newline
-problem, followed by a discussion of the impact of those ``tuned''
-parameters in Section~\ref{sec:SMACimpact}. 
-Section~\ref{sec:applyingToOtherProblems} documents the results of
-applying these new ``tuned'' parameters to several other software
-synthesis problems, and we wrap up with conclusions and ideas for future 
-work (Section~\ref{sec:conclusionsAndFutureWork}).
-
-\section{Background}
-\label{sec:background}
-
-The primary focus of this paper is the exploration of applications of the SMAC
-parameter optimization system on the Clojush implementation of
-PushGP. Here we'll provide a brief overview of both of these systems; we
-obviously can't cover all the details in the available space, however, and the
-reader is encouraged to refer to the cited work for additional detail.
-
-\subsection{SMAC and parameter optimization}
-\label{sec:SMACbackground}
-
-Sequential Model-based Algorithm Configuration (SMAC),
-provides a flexible mechanism for for optimizing algorithm 
-parameters.~\cite{HutHooLey11-SMAC}. Starting from an initial set of default
-parameter settings, SMAC updates the \emph{incumbent} (essentially the
-best collection of parameter settings found so far) by 
-iteratively:\footnote{The details of these steps are beyond the scope of this 
-	paper; see~\cite{HutHooLey11-SMAC} for additional information.}
-\begin{itemize}
-	\item Fitting a model to the data SMAC has collected so far relating 
-	parameter settings and algorithm performance
-	\item Selecting new configurations to explore
-	\item Performing additional runs of the target algorithm to both (a)
-	add to the knowledge of the performance of previously explored
-	configurations (including the current incumbent) and
-	(b) exploring new configurations
-\end{itemize}
-
-SMAC is highly flexible in, for example, supporting both numeric and
-categorical variables, allowing the user to specify complex constraints
-on parameter settings, and supporting parallel and cluster-based
-parameter search. It has been successfully applied to parameter
-optimization in a variety of machine learning and algorithmic 
-applications, including prior 
-work~\cite{hutter2013evaluation} comparing SMAC to an
-evolutionary computation system (CMA-ES~\cite{hansen1996adapting}).
-As far as we know, however, there is no published work on applying SMAC to
-the optimization of genetic programming parameters.
-
-\subsection{Software synthesis benchmark problems}
-\label{sec:benchmarkProblems}
-
-In this study we will use five problems from the software synthesis 
-benchmark suite by Helmuth, et al.~\cite{Helmuth:2015:GECCO}:
-\begin{description}
-	\item[Replace Space With Newline] Given a string input, both (a) print
-	the string with all the spaces replaced with newlines, and (b) return 
-	the number of non-whitespace characters.
-	\item[Double Letters] Take a string input and print the string, doubling
-	every letter character, and tripling every exclamation point. All other
-	characters should be printed a single time each.
-	\item[String Lengths Backwards] Take a vector of strings, and print the length
-	of each string in the vector, starting with the last and ending with the
-	first.
-	\item[Syllables] Count the number of vowels in a given string and print
-	that number as $X$ in ``The number of syllables is $X$.''.
-	\item[X-Word Lines] Given an integer $X$ and a string that can contain
-	spaces and newlines, print the string with exactly $X$ words per line.
-\end{description}
-These problems cover a variety of tasks involving multiple data types, and
-in many case require or benefit from complex control structures such as
-looping, recursion, or higher order functions. Based on earlier 
-results~\cite{Helmuth:2015:GECCO} they appear to have varying difficulty
-when using PushGP and lexicase selection. Some were solved fairly often; String
-Lengths Backwards was solved 66 times in 100 runs, and Replace Space With Newline was solved 51 times in 100 runs. The others were more difficult, with
-Syllables solved 18 times, X-Word Lines solved 8  times, and Double Letters
-solved 6 times, each out of 100 runs.
-
-\subsection{Push programs and Plush genomes}
-\label{sec:PushGPBackground}
-
-PushGP is a genetic programming system that evolves Push programs 
-\cite{spector2:2001:gecco,spector:2002:GPEM,push3gecco,Helmuth:2015:dissertation}. 
-Push is a stack-based language that runs on a virtual machine with a stack for 
-each data type, including standard types such as numbers, characters, and 
-collections, and also types for Push program code that can be dynamically 
-manipulated and executed. 
-
-Push programs have nested structure, but in recent PushGP systems these 
-programs are encoded using linear ``Plush'' 
-genomes~\cite{helmuthlinear}.\footnote{The added ``l'' in ``Plush'' 
-	is for ``linear''}
-With Plush, individuals are created and varied as linear Plush genomes, and 
-translated into nested Push programs only for execution.
-Plush genomes are sequences of genes, each of which specifies an instruction or 
-a literal (such as a number or string), and each of which may also be annotated 
-with {\it epigenetic markers} for silencing the gene (meaning that the instruction 
-or literal will not be translated to the Push program) or for the closing of nested 
-blocks in translated programs~\cite{la2015inheritable}. These three aspects of 
-genes (instruction/literal, silent marker, and ``close'' count) may be mutated 
-independently.
-
-In this work we used four genetic operators to construct new individuals:
-\begin{description}
-	\item[Uniform mutation] For each gene in the Plush genome, mutate the 
-	instruction in that gene with the likelihood specified by the Uniform Mutation 
-	Rate parameter.
-	\item[Uniform close mutation] For each gene, mutate the close count
-	with the likelihood specified by the Uniform Close Mutation Probability.
-	\item[Alternation] Create a child genome by interleaving sequences of instructions from the two parents; the likelihood of switching from one
-	parent to the other is the Alternation Rate. There is also the potential from
-	shifting the position in the new parent either forward or backward from
-	the position in the original parent; the range of these shifts is specified
-	with the Alignment Deviation parameter.
-	\item[Alternation + Uniform Mutation] Use Alternation to construct a
-	child from two parents, and then apply Uniform Mutation to that child.
-\end{description}
-
-Like most ``industrial
-strength'' EAs, Clojush has dozens of parameters that need to be set by the
-practicioner, ranging from ``standard'' parameters, like the population size
-and the maximum number of generations, to more Push-specific parameters
-such as \emph{alignment deviation} and \emph{uniform close mutation} 
-described above). The results presented with the introduction of the
-benchmark suite~\cite{Helmuth:2015:GECCO} were all obtained using a single
-set of ``standard'' parameter settings, and no effort was made to ``tune''
-those parameters either for individual problems or for the suite as whole.
-Thus it is certainly plausible that SMAC may be able to improve the performance of PushGP on at least some of these problems.
-
-\section{Tuning parameters for Replace~Space With Newline}
-\label{sec:tuningRSWN}
-
-In Holger Hoos's keynote at GECCO 
-2016~\cite{Hoos:2016:TCM:2908812.2908960}, he argued that tools such as
-SMAC made it possible to optimize large sets of parameters, and that those
-of working in evolutionary computation should embrace and even expand
-our parameter sets, using tools like SMAC to search for effective parameter
-settings.
-
-We decided to explore this opportunity, initially by using SMAC to optimize
-a significant set of PushGP parameters where there was some informal
-evidence that the ``standard'' settings might not be optimal. We chose to
-initially focus on the Replace Space with Newline problem because it had a
-reported success rate of around 50\%, which suggested that SMAC hopefully
-wouldn't struggle to find solutions, while there would still be reasonable
-opportunities for improvement.
-
-After some initial work to set SMAC up to work with Clojush, and convince
-ourselves that SMAC was in fact likely to perform some useful parameter
-optimization, we set up three extended SMAC runs, each working independently
-for one week to optimize parameters for the Replace Space With Newline software synthesis problem.
-This optimization depended on two important sets of choices:
-\begin{itemize}
-	\item The parameters to be optimized, and over what ranges
-	\item The settings applied to SMAC, such as how long to let it search
-\end{itemize}
-These will be described below, along with the results of that optimization.
-
-\subsection{PushGP parameters optimized}
-\label{sec:parametersOptimized}
-
-Clojush exposes dozens of parameters that could potentially be optimized, but
-adding parameters effectively increases the dimensionality and size of the
-search space SMAC is required to explore. Thus exposing every possible parameter
-seemed unwise, especially in a first experiment with the tool. We chose then
-to focus primarily on parameters that controlled the genetic operators, along
-with the population size and the selection mechanism. The parameters we chose 
-to explore, the ranges SMAC should explore for each parameter, and the 
-default initial values, are all listed in Table~\ref{tab:clojushParameters}.
-In each case the default initial value was the same value used for all the
-experiments in~\cite{Helmuth:2015:GECCO}, which we will subsequently
-describe as the ``Standard'' parameter settings.
-
-\begin{table}
-	\begin{center}
-	\begin{tabular}{p{4cm} p{2cm} l}
-		Parameter & Range & Default \\
-		\hline
-		Population size & $[1, 30K]$ & 1,000 \\
-		% Maximum generations & $[1, 30K]$ & $30,000/\textrm{population size}$ \\
-		Selection method & \emph{tournament} \linebreak or \emph{lexicase} & \emph{lexicase} \\
-		\hline
-		Uniform mutation prob. & $[0, 1]$ & 0.2 \\
-		Uniform close mutation prob. & $[0, 1]$ & 0.1 \\
-		Alternation prob. & $[0, 1]$ & 0.2 \\
-		(Alternation \linebreak + \quad Uniform mutation) prob. & $[0, 1]$ & 0.5 \\
-		\hline
-		Alternation rate & $[0, 1]$ & 0.01 \\
-		Alignment deviation & $[0, 400]$ & 10 \\
-		\hline
-		Uniform mutation rate & $[0, 1]$ & 0.1
-	\end{tabular}
-	\end{center}
-	\caption{Clojush parameters optimized by SMAC for the Replace Space With 
-		Newline problem, along with their ranges and 
-		default values.  Population size and
-		alignment deviation, are specified to have integer values.  Population
-		size is also specified to be on a $\log$ scale. The selection
-		method is a categorical (non-numeric) variable. The default
-		values are what were used in~\cite{Helmuth:2015:GECCO}, and
-		are referred to as the ``Standard'' parameter settings throughout
-		the paper.
-		See Section~\ref{sec:parametersOptimized} for additional details.
-	}
-	\label{tab:clojushParameters}
-\end{table}
-
-The first two parameters in Table~\ref{tab:clojushParameters} (population size
-and selection method) are fairly ``generic'' parameters. Population size, 
-however, presented an interesting issue because. while we wanted SMAC to be able to
-explore the impact of population size, we needed to maintain a consistent
-computational budget; otherwise SMAC would presumably discover the ``obvious''
-fact that it is almost always desirable to provide more computational resources to the underlying Clojush search. We wanted to make the runs comparable to those
-reported in~\cite{Helmuth:2015:GECCO}, all of which used a population size of
-1,000 for 300 generations, meaning that at most 30,000 individuals were evaluated 
-in the course of a run.\footnote{Clojush runs there, and in this work, 
-	were terminated early when a solution was found, so some runs used
-	considerably less than their full budget of 30,000 evaluations.} To provide
-a similar constraint here, we allowed SMAC to explore the full range of 
-$[1, 30K]$ for the population size, and computed the maximum number of
-generations as
-\[
-	\left \lfloor{\frac{30,000}{\textrm{population size}}}\right \rfloor
-\]
-This ensures that no Clojush run explored by SMAC would be allowed 
-\emph{more} than 30,000 individual evaluations, although some choices of 
-population size would be ``penalized'' by being allocated substantially fewer. 
-Any population size over 15K, for example, would get only one generation, which 
-means a population size just over 15K would get just over half the evaluations 
-that a ``full'' run would. Our hope was that SMAC would be able to incorporate
-these impacts in its parameter search without any great difficulty.
-
-We also used the SMAC option of declaring the population size to be an
-integer value (so SMAC wouldn't explore non-integral values for that parameter),
-and we applied SMAC's \emph{log} modifier to the population size parameter.
-The SMAC \emph{log} modifier is used to indicate parameters that naturally
-vary on a logrithmic scale. This means that from SMAC's perspective a change
-in population size from 10 to 100 has the same magnitude as a change from 1,000 to
-10,000. We made the choice on the assumption that while there might be value
-in exploring small changes to small population sizes (e.g., from 10 to 12),
-there was unlikely to be value in exploring small changes for large sizes
-(e.g., from 20,000 to 20,002).
-
-The selection mechanism parameter used SMAC's \emph{categorical} qualifier to
-indicate that it's set of values came from a set of discrete, non-numerical
-options. In this case we allowed SMAC to explore two choices for the selection
-mechanism: traditional tournament selection (with a tournament size of 7) and
-lexicase selection~\cite{Helmuth:2014:ieeeTEC, Spector:2012:GECCOcompANEW}. Earlier 
-work~\cite{Helmuth:2015:GECCO} had shown that lexicase selection was
-significantly more effective than tournament selection, at least with a set of 
-default parameter values that hadn't been particularly tuned for either
-selection mechanism. By letting SMAC explore both selection mechanisms while
-tuning several other parameters, it was possible that SMAC would discover
-that tournament selection might outperform lexicase selection when combined
-with a particular collection of parameter settings.
-
-The next four parameters in Table~\ref{tab:clojushParameters} indicate the
-relative likelihood of each of the four genetic operators. These need to sum
-to 1 (since every individual must be created via \emph{some} genetic operator),
-so these were normalized before being passed from SMAC to Clojush by dividing
-each by the sum of those four parameters.\footnote{This arguably inflates the dimensionality of the
-search space for SMAC; from SMAC's perspective these parameters provide four
-degrees of freedom, when in reality there are only three since values for any
-three determine the value of the fourth. The obvious ways of addressing this
-seemed that they might badly skew the search space, however. If, for example,
-we computed the last based on the sum of the first three, most choices for the
-first three would be illegal (they alone would sum to more than 1), and
-proportionally very few would allow for a relatively large value for the
-remaining parameter. So we chose to present SMAC with four apparently 
-independent parameters and normalize.} The next two parameters in Table~\ref{tab:clojushParameters} (alternation
-rate and alignment deviation) are control the behavior of the alternation
-operator that plays the role of crossover in these runs. The final parameter
-specifies the uniform mutation rate.
-
-\subsection{SMAC settings}
-\label{sec:SMACsettings}
-
-After deciding which parameters to optimize and over which ranges, there 
-were two primary SMAC-specific choices to be made. The first was how to
-report the ``success'' of the underlying PushGP runs back to SMAC. One
-option would have been to report an aggregate score like the best total error,
-We instead chose to 
-follow~\cite{Helmuth:2015:GECCO,Helmuth:2014:ieeeTEC}, and report
-success as a binary outcome: The run succeeded in finding a solution that
-had zero error on all the training cases, or it didn't. This arguably doesn't
-give SMAC much gradient to work with, and we will discuss some alternatives
-in Section~\ref{sec:futureWork}.
-
-The second key choice was about how much time to allocate to the search
-process. There are two key values here: The maximum time to allow 
-each underlying run of PushGP, and the total time to give to SMAC 
-(including the sum of all the times of the underlying PushGP runs). 
-Based on some early trials, it seemed likely that we could get some 
-useful results if we limited the PushGP runs to at most one hour of 
-wall clock time, and then allocated a week of wall clock time to each 
-of the overall SMAC runs.
-
-\subsection{Results of initial experiments with SMAC}
-
-All three of these independent SMAC runs on the Replace Space With Newline
-problem were able to ``tune'' the given PushGP parameters, discovering settings
-with higher success rates than the 51\% achieved with
-the Standard settings (i.e., the defaults in Table~\ref{tab:clojushParameters}).
-The best of the three found a configuration that led to a success rate of
-98\% based on 56 runs, one found a configuration with a success rate of 91\%
-on 75 runs, and one found a configuration with a success rate of 81\% 
-based on 68 runs.
-
-%:uniform-mutation-rate', '0.188248252944', ':max-generations', '2000', ':alignment-deviation', '121', ':population-size', '150', ':genetic-operator-probabilities', '"{:alternation 0.032085 :uniform-mutation 0.361209 :uniform-close-mutation 0.062157 [:alternation :uniform-mutation] 0.544550}"', ':parent-selection', ':lexicase', ':alternation-rate', '0.01']
-%
-%:uniform-mutation-rate 0.18
-%:alignment-deviation 120
-%:genetic-operator-probabilities {:alternation 0.04
-%	:uniform-mutation 0.36
-%	:uniform-close-mutation 0.06
-%	[:alternation :uniform-mutation] 0.54}
-
-\begin{table}
-	\begin{center}
-	\begin{tabular}{p{4cm} p{1.5cm} p{1.5cm}}
-		Parameter & Standard value & SMAC  value \\
-		\hline
-		Population size & 1000 &  150 \\
-		Selection method & lexicase & lexicase \\
-		\hline
-		Uniform mutation prob. & 0.2 & 0.36 \\
-		Uniform close mutation prob. & 0.1 & 0.06 \\
-		Alternation prob. & 0.2 & 0.03 \\
-		(Alternation \linebreak + \quad Uniform mutation) prob. & 0.5 & 0.54 \\
-		\hline
-		Alternation rate & 0.01 & 0.01 \\
-		Alignment deviation & 10 & 121 \\
-		\hline
-		Uniform mutation rate & 0.1 & 0.188
-	\end{tabular}
-	\end{center}
-	\caption{The ``Standard'' parameters (the defaults from Table~\ref{tab:clojushParameters} and the ``SMAC'' parameters from the most successful of the three one-week SMAC
-	runs optimizing parameters for the Replace Space With Newline problem.}
-	\label{tab:SMACtunedParameters}
-\end{table}
-
-The ``tuned'' SMAC parameters from the best of these runs are listed in
-Table~\ref{tab:SMACtunedParameters}, along with the Standard parameters
-(i.e., the defaults from Table~\ref{tab:clojushParameters}). Key differences
-between the two settings include a substantially smaller population size,
-a generally higher emphasis on uniform mutation with a much higher
-mutation rate, and much higher alignment deviation values.
-
-\section{Impact of SMAC on RSWN runs}
-\label{sec:SMACimpact}
-
-To test the effect of the SMAC parameters, we performed 110
-independent runs of the Replace Space With Newline (RSWN) problem using the
-SMAC parameters, as well as 110 independent runs of RSWN using the
-Standard parameters. We then confirmed that the new runs with the SMAC
-parameters did indeed have higher success rates, and looked at the effect
-of the SMAC parameters on the proportions of the four genetic operators
-in the ancestries leading to the successful individuals.
-
-\subsection{Impact of SMAC settings on RSWN success}
-\label{sec:SMACsuccessRSWN}
-
-As one might expect, using the parameters SMAC ``tuned'' for the
-Replace Space With Newline problem led to a 
-substantial increase in the proportion of successful runs. Of the 110
-Standard runs, 59  succeeded, or a success rate of 54\%, while 104 of the
-110 SMAC runs succeeded, or a success rate of 95\%.\footnote{A $\chi^2$ test of 
-proportions yields a $p$-value of $1.2 \times 10^{-11}$, so (not surprisingly)
-these differences are statistically significant.}
-
-\begin{figure}
-	\includegraphics[width=3in]{../figures/successGenerations}
-	\caption{Cumulative success counts over time for both the Standard
-	and the SMAC parameter settings.}
-	\label{fig:successGenerations}
-\end{figure}
-
-As Figure~\ref{fig:successGenerations} illustrates, the runs using the SMAC
-parameter configuration also discovered solutions much earlier than runs using
-the Standard parameters. By generation 100, for example, 90 of the 110 SMAC 
-runs (or 87\%) had succeeded, where only 41 of the 110 Standard runs 
-(or 37\%) had succeeded. All the pairwise (by generation) differences 
-between SMAC and Standard cumulative counts in 
-Figure~\ref{fig:successGenerations} are 
-statistically significant ($p<0.015$)
-from generation 29 forward.\footnote{Using a $\chi^2$ test of proportions 
-	with the Holm correction for the 300 separate comparisons.}
-
-\subsection{Impact of SMAC settings on genetic operator proportions}
-\label{sec:SMACimpactRSWNops}
-
-Key differences between the Standard parameter settings and the SMAC parameters
-are the changes in the genetic operator probabilities, as outlined in
-Table~\ref{tab:clojushParameters}. 
-A question this raises is how these changes
-actually impact the dynamics of the resulting runs, and in particular if and
-how they affect the likelihood of a given genetic operator playing a key
-role in the ultimate discovery of a solution.
-
-%\todo{We should replace this graph with one with a more sensible shaping (e.g., width proportional to the number of genes passed to the child). We may also
-%	want to have two graphs, one filtered and one not filtered to illustrate those
-%	two approaches. It would also be nice if the edges were thicker/more prominent.}
-
-\begin{figure*}
-	\includegraphics[width=\textwidth]{../figures/log1_filter_by_genes_vanilla}
-	\caption{Ancestry graph of a successful Replace Space With Newline run
-	using the ``tuned'' parameters discovered by SMAC. This tree is filtered 
-	to only include individuals that ultimately passed a gene
-	on to the winning individual. Each individual is represented as a
-	rectangle whose width is proportional to the number of selections
-	it received, and whose color is a function of its error vector.
-	Edges indicate parent-child relationships. Dashed black edges indicate
-	that the child was constructed via alternation alone; solid black edges 
-	indicate alternation followed by uniform mutation. Solid orange edges
-	indicate applications of uniform mutation, and dashed orange represent
-	applications of uniform close mutation.}
-	\label{fig:log1ByGenes}
-\end{figure*}
-
-To address this question, we did 10 runs of Replace Space With Newline (RSWN) 
-using the Standard parameters and 10 using the SMAC parameters, 
-collecting highly detailed records of parent-child relationships 
-among individuals, as well as information on which genes in the Plush 
-genomes of parents were copied into
-the genomes of their children. This allowed us to compute full ancestry
-graphs for 
-runs~\cite{McPhee:2016:VGP:2908961.2931741,McPhee:2015:GPTP,McPhee:2016:GPTP},
-tracing back from the ``winning'' individuals (programs that have zero error)
-to discover all their ancestors. Figure~\ref{fig:log1ByGenes}, for example,
-shows the (filtered) ancestry graph for one successful RSWN run 
-using the SMAC parameters. Of these 20 runs with detailed data collection,
-9 of the 10 runs using the SMAC parameters were successful, and 5 of the
-10 runs using the Standard parameters were successful.
-
-We know that across all the thousands of generated individuals in a run,
-the proportions of the various genetic operators should at least roughly
-match those in Table~\ref{tab:clojushParameters}. It's less clear, however,
-whether the edges in the ancestry graph, i.e., the steps that ultimately led
-to a successful individual, follow the same proportions. To better understand
-the relationship between the parameter settings and the actual operator usage
-in finding solutions, we collected genetic operator count data from the 14 successful
-runs with detailed data collection, for each of three different 
-groups of individuals:
-\begin{description}
-	\item[Ancestry] All individuals that were ancestors of one or more successful
-	individuals in the final generation
-	\item[Instruction] All individuals that contributed at least one instruction to
-	one or more successful individuals in the final generation
-	\item[LastGen] All 1,000 individuals in the final generation
-\end{description}
-The LastGen group essentially acts as a control to confirm that 
-the overall operator usage matched the parameter settings. The Instruction group
-addresses the fact that an individual can be an \emph{ancestor} of a
-successful individual without actually contributing any genetic material
-to that individual. An individual could contribute genetic material to its
-child, for example, but that material could be snipped out and 
-ultimately lost in subsequent
-generations through repeated mutation and alternation. So the Instruction
-group is the subset of the Ancestry group, where the Instruction group 
-individuals have
-at least one gene that is eventually transmitted to a successful individual
-with its instruction intact. (Thus a gene could have its close count mutated
-by a future uniform close mutation event, but the instruction component of
-that gene would have to remain intact.)
-
-\begin{figure*}
-	\includegraphics[width=\textwidth]{../figures/OperatorProportions}
-	\caption{Proportion of the different genetic operators used to
-	generate different subsets of the population. The horizontal lines 
-	indicate the expected proportion of that operator as specified in 
-	the parameter settings (SMAC or Standard), and deviations from those
-	lines indicate places where a genetic operator was used more or less
-	to generate individuals in that subset of the population 
-	than we would have expected given the parameter settings. See 
-	Section~\ref{sec:SMACimpactRSWNops} for additional details.}
-	\label{fig:opProportions}
-\end{figure*}
-
-Figure~\ref{fig:opProportions} shows the proportion of each genetic 
-operator's use in each of these three groups of the individuals across
-the 9 successful runs using the SMAC parameters, and the 5 successful runs
-using the Standard parameters. The first
-panel (``Random'') indicates the proportion of individuals in that collection
-of individuals that were randomly generated in the initial population. 
-In each of
-the facets except the first (``Random''), colored horizontal lines indicate
-the proportions set in the relevant parameter settings (i.e., SMAC or
-Standard). Thus distributions that are substantially higher or lower than
-their associated line indicate cases where the proportion of individuals in
-that subset of the population created by that operation differed from what
-one might have expected given the parameter settings.
-
-Not surprisingly, randomly generated individuals are not a large
-proportion of the individuals in either ancestry tree, and don't exist
-at all in the final generation. The two SMAC outliers in the Random panel in Figure~\ref{fig:opProportions} come from the run
-illustrated in Figure~\ref{fig:log1ByGenes}, which found a solution in 
-just 10 generations, so the (still small) number
-of ancestors in the initial random generation weren't ``amortized''
-across many additional generations.
-
-The LastGen counts are, as we would hope, close to the parameter
-setting values (i.e., the horizontal lines). The fact that some of the
-boxplots don't actually overlap the parameter setting is probably due
-to the small number of samples, especially for Standard, where we only
-have 5 successful runs.
-
-With the exception of Standard with just Alternation and, to a
-lesser degree, Standard with Uniform Close Mutation, the proportion
-of operators in either of the ancestry trees is noticeably
-different from the parameter settings. For Uniform Mutation alone, for 
-example, (the second panel) the SMAC parameter setting
-was 0.36, but the median values across both ancestry trees were much closer to
-the \emph{Standard} parameter setting of 0.2. The Standard proportions across
-both ancestry trees (median 0.27 for Ancestry, 0.24 for Instruction) were definitely higher than the Standard setting of 0.2, but not as high as the
-SMAC setting of 0.36. If all one had was the Standard results, one might 
-have suspected that the fact that
-the Standard proportions for uniform mutation were higher than the Standard
-setting was a hint that successful runs would benefit from higher uniform
-mutation rates. This guess would then appear to be supported by the fact
-that SMAC found that a higher proportion of uniform mutation did in fact
-improve success rates. What is less obvious, however, is why the \emph{actual}
-proportions of uniform mutation steps that ultimately led to the discovery of
-a successful individual in the SMAC runs were quite a bit lower than the SMAC
-settings, being very close to the original Standard parameter value.
-
-While it's not clear exactly what  the source of this apparent discrepancy is,
-one potentially contributing factor might be variations in the impact of the
-different genetic operators. If, for example, alternation makes viable 
-children more often, you would need fewer alternation events 
-per reproduction event to generate a certain number of ``successful''
-alternations. If, on the other hand, uniform mutation makes viable children 
-less often (especially with SMAC's much higher uniform mutation rate), 
-you would need more uniform mutation events to generate the
-desired number of ``successful'' mutations. At this point this is just
-speculation, and more data collection and analysis would be needed to better
-understand these interactions.
-
-\section{Applying those parameters to other problems}
-\label{sec:applyingToOtherProblems}
-
-%These are the parameters I'm using, which are approximately those taken from Nic's SMAC optimizations on RSWN:
-%
-%\begin{verbatim}
-%:uniform-mutation-rate 0.18
-%:alignment-deviation 120
-%:genetic-operator-probabilities {:alternation 0.04
-%                                 :uniform-mutation 0.36
-%                                 :uniform-close-mutation 0.06
-%                                 [:alternation :uniform-mutation] 0.54}
-%\end{verbatim}
-%
-%All other pushgp parameters are set to default, including population size of 1000.
+\section{Experimental results}
+\label{sec:experiments}
 
 \begin{table}[t]
-\centering
-\caption{Number of successful programs out of 100 runs with standard parameters (those in the ``Default'' column of Table~\ref{tab:clojushParameters}), and with the parameters that SMAC found when run on RSWN.}
-\label{table:results}
-%\rowcolors{3}{Gray}{white}
-\begin{tabular}{l r r}
-\toprule
-\textbf{Problem} & \textbf{Standard} & \textbf{SMAC} \tabularnewline
-\midrule
-\textit{Replace Space with Newline} & \textit{54} & \textit{91} \tabularnewline
-Double Letters	& 0 & 6 \tabularnewline
-String Lengths Backwards & 68 & 75 \tabularnewline
-Syllables & 22 & 17 \tabularnewline
-X-Word Lines & 17 & 3 \tabularnewline
-\bottomrule
-\end{tabular}
+	\caption{Clojush parameters optimized by SMAC for the Replace Space With 
+	Newline problem, along with their ranges (as given to SMAC), their 
+	default values, and their ``optimized'' values as discovered
+	by SMAC.  Population size and
+	alignment deviation are specified to have integer values.  Population
+	size is also specified to be on a $\log$ scale. The selection
+	method is a categorical (non-numeric) variable. The default
+	values are what were used in~\cite{Helmuth:2015:GECCO}. 
+	The final row shows the number of successes out of 110
+	independent trials for each collection of parameter settings.
+}
+	\begin{center}
+		\begin{tabular}{p{3.25cm} p{1.5cm} l l}
+			\textbf{Parameter} & \textbf{Range} & \textbf{Default} & \textbf{SMAC} \\
+			\midrule
+			Population size & $[1, 30K]$ & 1,000 & 150 \\
+			% Maximum generations & $[1, 30K]$ & $30,000/\textrm{population size}$ \\
+			Selection method & \emph{tournament} \linebreak or \emph{lexicase} & \emph{lexicase} & \emph{lexicase} \\
+			\midrule
+			Uniform mutation prob. & $[0, 1]$ & 0.2 & 0.36 \\
+			Uniform close mut. prob. & $[0, 1]$ & 0.1 & 0.06 \\
+			Alternation prob. & $[0, 1]$ & 0.2 & 0.03 \\
+			(Alt. + Uni. mut.) prob. & $[0, 1]$ & 0.5 & 0.54 \\
+			\midrule
+			Alternation rate & $[0, 1]$ & 0.01 & 0.01 \\
+			Alignment deviation & $[0, 400]$ & 10 & 121 \\
+			\midrule
+			Uniform mutation rate & $[0, 1]$ & 0.1 & 0.188 \\
+			\midrule
+			\noalign{\medskip}
+			\textbf{Successes (out of 110)} & & \textbf{59} & \textbf{104} \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+	\label{tab:RswnResults}
 \end{table}
 
-One of the hopes of using SMAC is that parameters found when optimizing one problem might be transferable to other problems with similar requirements. To test whether the parameters we found with SMAC on RSWN can be helpful for other problems, we conducted sets of 100 runs on 4 other problems from the same program synthesis benchmark suite: Double Letters, String Lengths Backwards, Syllables, and X-Word Lines. Each of these problems requires a solution program that manipulates strings like RSWN, but otherwise has different requirements. For example, the Syllables problem requires the program to count the number of vowels in a given input string.
+We initially used SMAC to optimize nine
+PushGP parameters~\cite{Helmuth:2015:dissertation}
+on the Replace Space With Newline
+software synthesis problem~\cite{Helmuth:2015:GECCO}. Both the default
+parameter settings used in previous work~\cite{Helmuth:2015:GECCO} and the 
+parameter settings ``discovered'' by SMAC are listed in 
+Table~\ref{tab:RswnResults}.
 
-In Table~\ref{table:results} we present the number of successful runs out of 100 for each problem, using both the default parameters and those found with SMAC on RSWN. Note that we only count a program as a success if it generalizes to an unseen set of test data. Of these results, the SMAC parameters are only significantly better on the Double Letters problem.\footnote{Using a $\chi^2$ test of proportions with a significance level of $0.05$.} 
-Conversely, SMAC's settings gave significantly worse results on the X-Word Lines problem, and no significant difference on the other two problems.
+To ensure that changing the population size didn't affect the overall
+computational budget for the runs, the number of generations was calculated
+based on the population size so that runs all could compute the fitness of no
+more than the 300,000 individuals processed when using the default parameters,
+which used a population size of 1,000 for 300 generations.
+The parameters \textit{uniform mutation probability}, \textit{uniform close
+mutation probability}, \textit{alternation probability}, and \textit{alternation followed by uniform mutation probability} need to add up
+to 1; we let SMAC explore any values in the range $[0, 1]$ and then normalized
+those four values so they summed to 1.
 
-These results indicate that while the parameters discovered by SMAC on RSWN do significantly improve results on RSWN itself, they do not provide any improvements on other similar problems. This leads to the conclusion that there is some characteristic of the RSWN problem that makes high mutation rates and high alignment deviations able to find solutions much more quickly, and that this characteristic does not hold for other similar types of problems
+%\begin{figure}
+%	\includegraphics[width=3in]{../figures/successGenerations}
+%	\caption{Cumulative success counts over time for both the default
+%		(i.e., ``Standard'')
+%		and the SMAC parameter settings.}
+%	\label{fig:successGenerations}
+%\end{figure}
 
-\section{Conclusions and future work}
-\label{sec:conclusionsAndFutureWork}
+The final row of Table~\ref{tab:RswnResults} shows that the SMAC parameters
+let to significantly higher success rates, with 95\% of
+the SMAC parameter runs finding a solution, vs. only 54\% with the default settings.
+The runs using the SMAC
+parameter configuration also discovered solutions much earlier than runs using
+the default parameters. By generation 100, for example, 87\% of the runs had succeeded when using the SMAC parameters, 
+where only 37\% of the runs with the default settings
+had succeeded.
 
-In this case study, we were able to successfully use SMAC to optimize a 
-collection of 9 PushGP parameters on the Replace Space With Newline problem, 
-and the resulting ``tuned'' parameters had much higher success rates than the
-Standard parameters used in~\cite{Helmuth:2015:GECCO}, with solutions 
-being discovered more quickly than with the Standard parameters.
-Modifying the parameters also appears to have substantially altered the
-proportion of the various genetic operators that played key roles in the
-discovery of solutions; the nature of those changes isn't obvious, however.
+\begin{table}[t]
+	\centering
+	\caption{Number of successful programs out of 100 runs with default parameters, and with the parameters that SMAC found when run on RSWN
+		; see Table~\ref{tab:RswnResults}.}
+	\label{table:allResults}
+	\begin{tabular}{l r r}
+		\textbf{Problem} & \textbf{Standard} & \textbf{SMAC} \\
+		\textit{Replace Space with Newline} & \textit{54} & \textit{91} \\
+		Double Letters	& 0 & 6 \\
+		String Lengths Backwards & 68 & 75 \\
+		Syllables & 22 & 17 \\
+		X-Word Lines & 17 & 3 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
 
-Unfortunately, it appears that in some sense SMAC ``overfit'' on the Replace
-Space With Newline problem, as applying these parameters to four additional
-software synthesis problems let to rather mixed results. While the SMAC
-parameters did lead to a modest (but statistically significant) improved 
-success rate on one of the four additional problems, it had no impact on
-two others, and significantly reduced the success rate on the last.
+Table~\ref{table:allResults} shows the success rates on 100 independent runs
+for each parameter set on four additional software synthesis benchmark
+problems~\cite{Helmuth:2015:GECCO}. Here we see that settings
+``tuned'' by SMAC for Replace Space With Newline do \emph{not} generalize
+well across the new problems. The SMAC settings are significantly
+(but not dramatically) better on
+Double Letters, and significantly worse on X-Word Lines, while the differences for
+the other two problems weren't statistically significant.\footnote{Using a
+	pairwise $\chi^2$ test of proportions with a significance level (before
+	adjustment) of 0.05.}
 
-The fact that SMAC was able to discover settings that improved
-performance on the Replace Space With Newline problem by such a wide margin
-is quite impressive. The fact that those parameter settings don't appear to
-generalize is in no way the ``fault'' of SMAC, and are likely more 
-about the computational properties of our test problems and how we used 
-the tool (SMAC) than any property of the tool itself.
+\section{Conclusions and Future Work}
+\label{sec:conclusions}
 
-One obvious extension of this work would be to try to use SMAC's ability
-to optimize across suites of problems or problem instances in the hopes
-that this will reduce the ``overfitting'' seen here. Unfortunately, this will
-be a computationally expensive task. We made several attempts at applying
-SMAC to our other four test problems individually, for example, and found
-that in some sense we'd gotten lucky in our initial choice of the Replace
-Space With Newline (RSWN) problem. While we could cap individual  PushGP
-RSWN runs at one hour and still find solutions, it turns out that we needed
-to use caps of 12 to 24 hours for single PushGP runs on the other problems
-or the odds of finding a solution became so low that SMAC simply had no
-signal to work with. Such long execution times suggest that it will take
-weeks, if not months, of wall clock time to make any meaningful progress
-on a suite of problems, even if we take advantage of SMAC's ability to run
-cooperative parallel optimization processes on a cluster.
+SMAC was able to discover parameter settings that substantially improved
+performance on a specific problem (Replace Space With Newline) where we already
+had a reasonable success rate. Those new parameter settings did not generalize
+to additional problems, however, suggesting that SMAC, like most machine
+learning systems, is susceptible to ``overfitting''.
 
-One modification that might lead to more effective parameter search
-would be to provide SMAC with more information about the outcome of a
-run than just a binary success-failure response. We could, for example,
-relax our ``uncompromising'' stance and give SMAC something like total
-error for runs that didn't succeed, although this comes with the risk that 
-SMAC will become trapped in a local optima that consistently yields low
-total error, but rarely (or never) finds an actual solution. We could also
-include some runtime information in what is passed to SMAC, encouraging
-it to favor parameter settings that find solutions quickly over those that take
-longer.
+SMAC does support a training mode where it can explore parameters across a range
+of problems or problem instances, which might help address these ``overfitting''
+issues and help SMAC find parameters that perform well more generally.
+Unfortunately, running SMAC across a broad
+collection of problems requires a considerable computational effort, 
+especially when several of the test problems have low success rates, meaning
+that many runs take considerable computation effort before they fail, leading
+to SMAC gaining limited signal for quite a lot of effort. Limited
+exploratory work in this direction has so far been stymied by the need to allow
+up to 24 hours per run combined with the need for many hundreds of runs before
+SMAC collects enough information on successful runs to gain any traction.
 
-Another avenue that could affect the run times would be to explore
-additional parameters. The 9 parameters chosen here focused primarily
-on the ``genetics'' of a run, but there are \emph{numerous} other parameters
-that we could make available to SMAC. Some of these, like the range of
-genome sizes in the initial population, and limits on genome sizes, program
-sizes, and number of allowed function evaluations could all have substantial
-impacts on how long individual PushGP runs could take. If SMAC was encouraged
-to find solutions \emph{quickly} then it might be able to discover new
-settings for these parameters that speed up the process.
+Thus, while it is important to find ways to help SMAC (or similar tools)
+discover more generally applicable parameter settings, doing so on suites 
+of problems that are computationally expensive to run and have low success rates is certainly problematic, deserving of further attention.
 
 \section*{Acknowledgements}
 \label{sec:acknowledgements}
 
-We are very grateful to participants on the SMAC forum for their patience
-in answering numerous questions as we worked to understand how to use
-SMAC.
+We are extremely grateful to participants on the SMAC forum for their patience
+in answering numerous questions as we learned our way around
+SMAC. Thanks also to Mitchell Finzel and Elsa Browning for their editing assistance.
 
-Thanks to Mitchell Finzel and Elsa Browning for their editing assistance.
+This material is based upon work supported by the National Science Foundation under Grants No. 1617087, 1129139 and 1331283. Any opinions, findings, and conclusions or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the National Science Foundation.

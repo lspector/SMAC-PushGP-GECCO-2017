@@ -14,8 +14,8 @@
 % Copyright
 %\setcopyright{none}
 %\setcopyright{acmcopyright}
-%\setcopyright{acmlicensed}
-\setcopyright{rightsretained}
+\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
 %\setcopyright{usgov}
 %\setcopyright{usgovmixed}
 %\setcopyright{cagov}
@@ -53,6 +53,7 @@
 \email{mcphee@morris.umn.edu}
 
 \author{Thomas Helmuth}
+\orcid{0000-0002-2330-6809}
 \affiliation{%
     \institution{Washington and Lee University}
     \city{Lexington} 
@@ -63,6 +64,7 @@
 \email{helmutht@wlu.edu}
 
 \author{Lee Spector}
+\orcid{0000-0001-5299-4797}
 \affiliation{%
 	\institution{Hampshire College}
 	\city{Amherst}
@@ -73,11 +75,8 @@
 \email{lspector@hampshire.edu}
 
 \begin{abstract}
-	Sequential Model-based Algorithm Configuration (SMAC) is a
-	tool for optimizing algorithm parameters, using repeated runs
-	of the target algorithm with different parameter values to estimate
-	the relationship between parameters and performance. 
-	Here we use SMAC to optimize
+	We use 
+	Sequential Model-based Algorithm Configuration (SMAC) to optimize
 	a group of parameters for PushGP, a stack-based genetic programming
 	system, for
 	several software synthesis problems. Applying
@@ -85,8 +84,8 @@
 	to marked improvements in the success rate and the speed with which
 	a solution was found for that problem. Applying these ``tuned'' 
 	parameters to four
-	additional problems, however, provided no benefit on three, and
-	substantially reduced performance on the last. This suggests that SMAC 
+	additional problems, however, only improved performance on one, and
+	substantially reduced performance on the another. This suggests that SMAC 
 	is ``overfitting'', tuning the parameters in ways that are 
 	highly problem specific, and raises doubts about the value of
 	using these ``tuned'' parameters on  previously unsolved problems.
