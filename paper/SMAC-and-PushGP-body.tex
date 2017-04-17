@@ -25,12 +25,12 @@ when applied to several software synthesis
 benchmark problems~\cite{Helmuth:2015:GECCO}. While SMAC was able to
 find ``tuned'' parameters for one problem which substantially improved
 the success rate on that problem, those ``tuned'' parameters appear to
-be very problem specific, leading to no improvement on several other
+be problem specific, leading to no improvement on several other
 problems, and actively hurting performance on another. This is a useful
 reminder that parameter optimization is, like all machine learning problems,
 subject to overfitting, and that just because a set of parameters works 
 well on one problem, or even a set of problems, doesn't mean it will be
-a good choice for the new unsolved problem.
+a good choice for a new unsolved problem.
 
 \section{Experimental results}
 \label{sec:experiments}
@@ -83,9 +83,9 @@ Table~\ref{tab:RswnResults}.
 
 To ensure that changing the population size didn't affect the overall
 computational budget for the runs, the number of generations was calculated
-based on the population size so that runs all could compute the fitness of no
-more than the 300,000 individuals processed when using the default parameters,
-which used a population size of 1,000 for 300 generations.
+so the product of the population size and
+number of generations never exceeded the 300,000 individuals processed when using the default parameters
+(population size of 1,000 for 300 generations).
 The parameters \textit{uniform mutation probability}, \textit{uniform close
 mutation probability}, \textit{alternation probability}, and \textit{alternation followed by uniform mutation probability} need to add up
 to 1; we let SMAC explore any values in the range $[0, 1]$ and then normalized
@@ -100,8 +100,8 @@ those four values so they summed to 1.
 %\end{figure}
 
 The final row of Table~\ref{tab:RswnResults} shows that the SMAC parameters
-let to significantly higher success rates, with 95\% of
-the SMAC parameter runs finding a solution, vs. only 54\% with the default settings.
+led to significantly higher success rates, with 95\% of
+the SMAC parameter runs finding a solution, versus 54\% with the default settings.
 The runs using the SMAC
 parameter configuration also discovered solutions much earlier than runs using
 the default parameters. By generation 100, for example, 87\% of the runs had succeeded when using the SMAC parameters, 
@@ -148,13 +148,14 @@ SMAC does support a training mode where it can explore parameters across a range
 of problems or problem instances, which might help address these ``overfitting''
 issues and help SMAC find parameters that perform well more generally.
 Unfortunately, running SMAC across a broad
-collection of problems requires a considerable computational effort, 
-especially when several of the test problems have low success rates, meaning
-that many runs take considerable computation effort before they fail, leading
-to SMAC gaining limited signal for quite a lot of effort. Limited
-exploratory work in this direction has so far been stymied by the need to allow
-up to 24 hours per run combined with the need for many hundreds of runs before
-SMAC collects enough information on successful runs to gain any traction.
+collection of problems requires substantial computational effort. This 
+problem is then made worse when several of the test problems have low success rates, as these runs often 
+consume considerable computational effort before they fail, 
+generating very little new information in the process.
+Limited exploratory work in this direction has been held up by SMAC's need for 
+an adequate amount of information on successful runs.  For these software 
+synthesis problems, this can lead to hundreds of runs, each run lasting up to 
+24 hours.
 
 Thus, while it is important to find ways to help SMAC (or similar tools)
 discover more generally applicable parameter settings, doing so on suites 
