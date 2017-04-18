@@ -15,30 +15,24 @@
 %\setcopyright{none}
 %\setcopyright{acmcopyright}
 %\setcopyright{acmlicensed}
-\setcopyright{rightsretained}
+%\setcopyright{rightsretained}
 %\setcopyright{usgov}
 %\setcopyright{usgovmixed}
 %\setcopyright{cagov}
 %\setcopyright{cagovmixed}
 
 
-% DOI
-\acmDOI{10.475/123_4}
-
-% ISBN
-\acmISBN{123-4567-24-567/08/06}
-
-%Conference
-\acmConference[GECCO '17]{the Genetic and Evolutionary Computation Conference 2017}{July 15--19, 2017}{Berlin, Germany}
-\acmYear{2017}
-\copyrightyear{2017}
-
-\acmPrice{15.00}
+\copyrightyear{2017} 
+\acmYear{2017} 
+\setcopyright{rightsretained} 
+\acmConference{GECCO '17 Companion}{July 15-19, 2017}{Berlin, Germany}
+\acmDOI{http://dx.doi.org/10.1145/3067695.3076097}
+\acmISBN{978-1-4503-4939-0/17/07}
 
 
 \begin{document}
-\title{Using SMAC to optimize PushGP parameters: A case study}
-\subtitle{Do we want a sub-title? I bet we can improve on this title.}
+\title[Using algorithm configuration tools to optimize genetic programming parameters]{Using algorithm configuration tools to optimize genetic programming parameters: A case study}
+% \subtitle{Using SMAC to (over) optimize parameters for PushGP}
 
 \author{Nicholas Freitag McPhee}
 \orcid{0000-0002-6495-2612}
@@ -53,6 +47,7 @@
 \email{mcphee@morris.umn.edu}
 
 \author{Thomas Helmuth}
+\orcid{0000-0002-2330-6809}
 \affiliation{%
     \institution{Washington and Lee University}
     \city{Lexington} 
@@ -63,6 +58,7 @@
 \email{helmutht@wlu.edu}
 
 \author{Lee Spector}
+\orcid{0000-0001-5299-4797}
 \affiliation{%
 	\institution{Hampshire College}
 	\city{Amherst}
@@ -73,11 +69,8 @@
 \email{lspector@hampshire.edu}
 
 \begin{abstract}
-	Sequential Model-based Algorithm Configuration (SMAC) is a
-	tool for optimizing algorithm parameters, using repeated runs
-	of the target algorithm with different parameter values to estimate
-	the relationship between parameters and performance. 
-	Here we use SMAC to optimize
+	We use 
+	Sequential Model-based Algorithm Configuration (SMAC) to optimize
 	a group of parameters for PushGP, a stack-based genetic programming
 	system, for
 	several software synthesis problems. Applying
@@ -85,18 +78,15 @@
 	to marked improvements in the success rate and the speed with which
 	a solution was found for that problem. Applying these ``tuned'' 
 	parameters to four
-	additional problems, however, provided no benefit on three, and
-	substantially reduced performance on the last. This suggests that SMAC 
+	additional problems, however, only improved performance on one, and
+	substantially reduced performance on another. This suggests that SMAC 
 	is ``overfitting'', tuning the parameters in ways that are 
 	highly problem specific, and raises doubts about the value of
 	using these ``tuned'' parameters on  previously unsolved problems.
 	Efforts to use SMAC to optimize PushGP parameters on other problems
 	have been less successful due to a combination of long PushGP run times
 	and low success rates, which make it hard for SMAC to acquire enough
-	signal in a reasonable amount of time.
-	
-	\todo[inline]{We need to do the CCS Concepts thing.}
-	\todo[inline]{We need to do the keywords.}
+	information in a reasonable amount of time.
 \end{abstract}
 
 %
@@ -105,36 +95,30 @@
 % Please copy and paste the code instead of the example below. 
 %
 \begin{CCSXML}
-<ccs2012>
- <concept>
-  <concept_id>10010520.10010553.10010562</concept_id>
-  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
-  <concept_significance>500</concept_significance>
- </concept>
- <concept>
-  <concept_id>10010520.10010575.10010755</concept_id>
-  <concept_desc>Computer systems organization~Redundancy</concept_desc>
-  <concept_significance>300</concept_significance>
- </concept>
- <concept>
-  <concept_id>10010520.10010553.10010554</concept_id>
-  <concept_desc>Computer systems organization~Robotics</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
- <concept>
-  <concept_id>10003033.10003083.10003095</concept_id>
-  <concept_desc>Networks~Network reliability</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
-</ccs2012>  
+	<ccs2012>
+	<concept>
+	<concept_id>10010147.10010257</concept_id>
+	<concept_desc>Computing methodologies~Machine learning</concept_desc>
+	<concept_significance>500</concept_significance>
+	</concept>
+	<concept>
+	<concept_id>10010147.10010257.10010293.10011809.10011813</concept_id>
+	<concept_desc>Computing methodologies~Genetic programming</concept_desc>
+	<concept_significance>500</concept_significance>
+	</concept>
+	<concept>
+	<concept_id>10010147.10010178.10010205</concept_id>
+	<concept_desc>Computing methodologies~Search methodologies</concept_desc>
+	<concept_significance>300</concept_significance>
+	</concept>
+	</ccs2012>
 \end{CCSXML}
 
-\ccsdesc[500]{Computer systems organization~Embedded systems}
-\ccsdesc[300]{Computer systems organization~Redundancy}
-\ccsdesc{Computer systems organization~Robotics}
-\ccsdesc[100]{Networks~Network reliability}
+\ccsdesc[500]{Computing methodologies~Machine learning}
+\ccsdesc[500]{Computing methodologies~Genetic programming}
+\ccsdesc[300]{Computing methodologies~Search methodologies}
 
-\keywords{ACM proceedings, \LaTeX, text tagging}
+\keywords{ parameter optimization, genetic programming, PushGP, SMAC, software synthesis}
 
 
 \maketitle
